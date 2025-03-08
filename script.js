@@ -158,7 +158,7 @@ function keyDownProsses(letter) {
                         letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
                     }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
                 }
-                else {
+                else if (processingWord[letterIndexOfGuess] !== "used") {
                     // marks the letter as not in the word
                     processingGuess[letterIndexOfGuess] = "incorrect";
 
