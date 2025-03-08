@@ -32,7 +32,7 @@ for (key of document.getElementsByClassName("key")) {
 }
 
 // Initialises the possible letters that can be used in the guess
-const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+const guessableSymbols = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
 
 // Creates the grid for the word to be guessed in
 for (let rowOfLetterIndex = 0; rowOfLetterIndex < guessesAllowed; rowOfLetterIndex ++) {
@@ -46,10 +46,6 @@ for (let rowOfLetterIndex = 0; rowOfLetterIndex < guessesAllowed; rowOfLetterInd
     wordHolder.appendChild(wordRow);
 }
 
-function loadStats() {
-
-}
-
 // checks if the word is valid
 // 0: valid
 // 1: not enough letters
@@ -61,7 +57,7 @@ function isValidWord(word) {
     if (words.includes(word)) {
         return 0;
     }
-    return 2;
+    return 0;
 }
 
 // displays a notification with the message argument attached
@@ -138,41 +134,44 @@ function keyDownProsses(letter) {
 
             // Checks if the guess is wrong spot or not in the word
             for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
-
-                if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
-                    let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
-
-                    // marks the letter as in the wrong spot
-                    processingGuess[letterIndexOfGuess] = "wrong spot";
-
-                    // marks the letter as used so there aren't any unwanted duplicate orange letters
-                    processingWord[index] = "used";
-                    
-                    // waits for the previous letters to animate before animating this letter
-                    setTimeout(() => {
-
-                        // adds the wrong class to the letter spot so it turns orange
-                        letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("wrong");
-
-                        // adds the popinout class to the letter spot so the animation plays
-                        letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                    }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                if (processingGuess[letterIndexOfGuess] !== "correct") {
+                    if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
+                        let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
+            
+                        // marks the letter as in the wrong spot
+                        processingGuess[letterIndexOfGuess] = "wrong spot";
+            
+                        // marks the letter as used so there aren't any unwanted duplicate orange letters
+                        processingWord[index] = "used";
+                        
+                        // waits for the previous letters to animate before animating this letter
+                        setTimeout(() => {
+            
+                            // adds the wrong class to the letter spot so it turns orange
+                            letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("wrong");
+            
+                            // adds the popinout class to the letter spot so the animation plays
+                            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
+                        }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                    }
+                    else if (processingWord[letterIndexOfGuess] !== "used") {
+                        // marks the letter as not in the word
+                        processingGuess[letterIndexOfGuess] = "incorrect";
+            
+                        // marks the letter as used so there aren't any unwanted duplicate orange letters
+                        // processingWord[letterIndexOfGuess] = "used";
+            
+                        // waits for the previous letters to animate before animating this letter
+                        setTimeout(() => {
+            
+                            // adds the wrong class to the letter spot so it turns grey
+                            letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("incorrect");
+            
+                            // adds the popinout class to the letter spot so the animation plays
+                            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
+                        }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                    }
                 }
-                else if (processingWord[letterIndexOfGuess] !== "used") {
-                    // marks the letter as not in the word
-                    processingGuess[letterIndexOfGuess] = "incorrect";
-
-                    // waits for the previous letters to animate before animating this letter
-                    setTimeout(() => {
-
-                        // adds the wrong class to the letter spot so it turns grey
-                        letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("incorrect");
-
-                        // adds the popinout class to the letter spot so the animation plays
-                        letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                    }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
-                }
-                
             }
 
             // waits for the last letter to animate before changing the colours of the keys
@@ -204,7 +203,7 @@ function keyDownProsses(letter) {
             
 
             if (correctWord === usersCurrentGuess) {
-
+                addNotification("You've won!", -1);
             }
             else {
                 // Increments the current guess amount so the next row can be used
@@ -242,7 +241,7 @@ function keyDownProsses(letter) {
     }
 
     // Add the letter to the guess if the user types a letter
-    else if (letters.includes(letter.toLowerCase()) && usersCurrentGuess.length < correctWordLength) {
+    else if (guessableSymbols.includes(letter.toLowerCase()) && usersCurrentGuess.length < correctWordLength) {
         usersCurrentGuess += letter.toLowerCase();
     }
 
