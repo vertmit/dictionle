@@ -57,7 +57,7 @@ function isValidWord(word) {
     if (words.includes(word)) {
         return 0;
     }
-    return 0;
+    return 2;
 }
 
 // displays a notification with the message argument attached
