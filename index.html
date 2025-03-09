@@ -3,12 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dictionle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Dictionle - The Word Guessing Game</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="nav">
+        <div id="title">
+            <img src="images/favicon.ico" alt="">
+            Dictionle
+        </div>
+        <div class="navOption" id="howToPlayBTN">
+            <img src="images/help.png" alt="">
+        </div>
+        <div class="navOption" id="statisticsBTN">
+            <img src="images/leaderboard.png" alt="">
+        </div>
+        
+    </div>
+    <div id="stats" style="opacity: 0; display: none; transform: translateY(5%);">
+        <div class="holder">
+            <div class="menuTitle">
+                <h1>Statistics</h1>
+                <img id="statsClose" class="close" src="images/close.png">
+            </div>
+            <div class="row">
+                <div class="stat">
+                    <h1 class="statNum" id="gamesPlayed">0</h1>
+                    <h3 class="statType">Played</h3>
+                </div>
+                <div class="stat">
+                    <h1 class="statNum" id="winPercent">0</h1>
+                    <h3 class="statType">Win %</h3>
+                </div>
+                <div class="stat">
+                    <h1 class="statNum" id="currentStreak">0</h1>
+                    <h3 class="statType">Current Streak</h3>
+                </div>
+                <div class="stat">
+                    <h1 class="statNum" id="maxStreak">0</h1>
+                    <h3 class="statType">Max Streak</h3>
+                </div>
+            </div>
+            <h3>GUESS DISTRIBUTION</h3>
+            <div id="guessDistrobutionHolder"></div>
+        </div>
+    </div>
+    <div id="howToPlayCloseBg" style="display: none;"></div>
+    <div id="howToPlay" style="opacity: 0; display: none; transform: translate(-50%, -45%);">
+        <div class="closeContainer">
+            <img id="howToPlayCloseBTN" class="close" src="images/close.png">
+        </div>
+        
+        <h1>How To Play</h1>
+        <h2>Guess the Dictionle in 6 tries.</h2>
+        <ul>
+            <li>Each guess much be a valid word</li>
+            <li>The colour of the tiles will change to show how close your guess was to the word.</li>
+        </ul>
+    </div>
+    
+
     <div class="container">
-        <h1>Dictionle</h1>
 
         <!-- Initializes a places for all the incomming notifications to go -->
         <div id="notificationHolder"></div>
@@ -48,7 +105,7 @@
                 <div class="key" id="B">B</div>
                 <div class="key" id="N">N</div>
                 <div class="key" id="M">M</div>
-                <div class="key streached" id="Backspace">DELETE</div>
+                <div class="key streached" id="Backspace"><i class="fa-solid fa-delete-left"></i></div>
             </div>
         </div>
         

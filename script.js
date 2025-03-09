@@ -2,8 +2,28 @@ const guessRows = document.getElementsByClassName("wordRow");
 const notificationHolder = document.getElementById("notificationHolder");
 const wordHolder = document.getElementById("wordHolder");
 
+// Getting the statistic elements
+const guessDistributionHolder = document.getElementById("guessDistrobutionHolder");
+const statisticsMenu = document.getElementById("stats");
+
+const statisticsNumberGamesPlayed = document.getElementById("gamesPlayed")
+const statisticsNumberWinPercent = document.getElementById("winPercent")
+const statisticsNumberCurrentStreak = document.getElementById("currentStreak")
+const statisticsNumberMaxStreak = document.getElementById("maxStreak")
+
+// Getting how to play popup elements
+const howToPlayPopup = document.getElementById("howToPlay")
+const howToPlayBackground = document.getElementById("howToPlayCloseBg")
+const howToPlayClosePopupBTN = document.getElementById("howToPlayCloseBTN")
+
+// Getting Navbar buttons
+const statisticsBTN = document.getElementById("statisticsBTN");
+const howToPlayBTN = document.getElementById("howToPlayBTN");
+
 let currentGuessAmount = 0;
 let usersCurrentGuess = "";
+
+let wordCorrectlyGuessed = false;
 
 // pickes a random word from the list of words found in the words.js file to be used as the correct word
 const correctWord = words[Math.floor(Math.random() * words.length)]; 
@@ -46,6 +66,118 @@ for (let rowOfLetterIndex = 0; rowOfLetterIndex < guessesAllowed; rowOfLetterInd
     wordHolder.appendChild(wordRow);
 }
 
+function openHowToPlayPopup() {
+    howToPlayPopup.style.display = "block";
+    setTimeout(() => {
+        howToPlayPopup.style.opacity = 1
+        howToPlayPopup.style.transform = "translate(-50%, -50%)"
+        howToPlayBackground.style.display = "block";
+    }, 10)
+}
+
+function closeHowToPlayPopup() {
+    howToPlayPopup.style.transform = "translate(-50%, -45%)"
+    howToPlayPopup.style.opacity = 0
+    setTimeout(() => {
+        howToPlayPopup.style.display = "none";
+        howToPlayBackground.style.display = "none";
+    }, 200)
+}
+
+howToPlayBTN.addEventListener("click", ()=>{
+    openHowToPlayPopup()
+})
+
+howToPlayBackground.addEventListener("click", ()=>{
+    closeHowToPlayPopup()
+})
+
+howToPlayClosePopupBTN.addEventListener("click", ()=>{
+    closeHowToPlayPopup()
+})
+
+const stats = JSON.parse(localStorage.getItem("statistics"))
+let guessdistribution = {}
+let statisticNumbers = {"played": 0, "wins":0, "streak":0, "maxStreak":0}
+if (stats) {
+    guessdistribution = stats.distribution
+    statisticNumbers = stats.numbers
+}
+
+const statisticsCloseButton = document.getElementById("statsClose") 
+
+statisticsBTN.addEventListener("click", ()=>{
+    openStatisicsMenu()
+})
+
+function openStatisicsMenu() {
+    statisticsMenu.style.display = "flex";
+    setTimeout(() => {
+        statisticsMenu.style.opacity = 1
+        statisticsMenu.style.transform = "translateY(0%)"
+    }, 10)
+    
+}
+
+function closeStatisicsMenu() {
+    statisticsMenu.style.transform = "translateY(5%)"
+    statisticsMenu.style.opacity = 0
+    setTimeout(() => {
+        statisticsMenu.style.display = "none";
+    }, 200)
+}
+
+statisticsCloseButton.addEventListener("click", ()=>{
+    closeStatisicsMenu()
+}) 
+
+function updateStatistics() {
+    localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
+
+    let guessDistributionNumbers = [];
+
+    while (guessDistributionHolder.firstChild) {
+        guessDistributionHolder.firstChild.remove();
+    }
+
+    const maxGuess = (Object.keys(guessdistribution).length > 0)? Object.keys(guessdistribution).slice(-1): 0;
+
+    for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1; i++ ) {
+        if (i in guessdistribution) {
+            guessDistributionNumbers.push(guessdistribution[i]);
+        } else {
+            guessDistributionNumbers.push(0)
+        }
+    }
+
+    const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
+
+    statisticsNumberGamesPlayed.textContent = statisticNumbers.played;
+    statisticsNumberWinPercent.textContent = (statisticNumbers.played !== 0)? Math.round(statisticNumbers.wins / statisticNumbers.played * 100): 0;
+    statisticsNumberCurrentStreak.textContent = statisticNumbers.streak
+    statisticsNumberMaxStreak.textContent = statisticNumbers.maxStreak
+
+    for (let i = 0; i < guessDistributionNumbers.length; i ++) {
+        const guessDistributionBox = document.createElement("div")
+        guessDistributionBox.className = "guessDistributionBox"
+
+        const indexNumberOfGuess = document.createElement("div");
+        indexNumberOfGuess.textContent = i + 1;
+        indexNumberOfGuess.className = "guessDistributionIndex";
+        guessDistributionBox.appendChild(indexNumberOfGuess)
+
+        const distributionBar = document.createElement("div");
+        distributionBar.className = "guessDistributionBar";
+        distributionBar.style.width = `calc(10px + ${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}%)`;
+        distributionBar.textContent = guessDistributionNumbers[i];
+        
+        guessDistributionBox.appendChild(distributionBar)
+        guessDistributionHolder.appendChild(guessDistributionBox)
+    }
+}
+
+updateStatistics()
+
 // checks if the word is valid
 // 0: valid
 // 1: not enough letters
@@ -82,197 +214,226 @@ function addNotification(message, timeOutMS) {
 
 // 
 function keyDownProsses(letter) {
-    // keeps track of the current guess status so the sleep block aren't affected
-    const currentGuessAmountAsOfFunctionCalled = currentGuessAmount;
-    const currentGuessAsOfFunctionCalled = usersCurrentGuess;
+    if (!wordCorrectlyGuessed) {
+        // keeps track of the current guess status so the sleep block aren't affected
+        const currentGuessAmountAsOfFunctionCalled = currentGuessAmount;
+        const currentGuessAsOfFunctionCalled = usersCurrentGuess;
 
-    // gets all the letter spots so they can be updated
-    const letterPlacesInsideGride = document.getElementsByClassName("letter");
+        // gets all the letter spots so they can be updated
+        const letterPlacesInsideGride = document.getElementsByClassName("letter");
 
-    if (letter === "Backspace") {
+        if (letter === "Backspace") {
 
-        // removes the last letter from the guess
-        usersCurrentGuess = usersCurrentGuess.slice(0, -1);
-    }
+            // removes the last letter from the guess
+            usersCurrentGuess = usersCurrentGuess.slice(0, -1);
+        }
 
-    else if (letter === "Enter") {
-        const wordStatus = isValidWord(usersCurrentGuess);
+        else if (letter === "Enter") {
+            const wordStatus = isValidWord(usersCurrentGuess);
 
-        // Sees if the word is valid
-        if (!wordStatus) {
+            // Sees if the word is valid
+            if (!wordStatus) {
 
-            // Splits the guesses from strings to lists so the specific letters can be changed
-            let processingGuess = usersCurrentGuess.split('');
-            let processingWord = correctWord.split('');
+                // Splits the guesses from strings to lists so the specific letters can be changed
+                let processingGuess = usersCurrentGuess.split('');
+                let processingWord = correctWord.split('');
 
-            // Checks if the guess is correct
-            for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+                // Checks if the guess is correct
+                for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
 
-                // removes the popinout class so the animation can be played again
-                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("popinout");
-                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("invalid");
+                    // removes the popinout class so the animation can be played again
+                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("popinout");
+                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("invalid");
 
-                if (usersCurrentGuess[letterIndexOfGuess] === correctWord[letterIndexOfGuess]) {
+                    if (usersCurrentGuess[letterIndexOfGuess] === correctWord[letterIndexOfGuess]) {
 
-                    // marks the letter as correct
-                    processingGuess[letterIndexOfGuess] = "correct";
+                        // marks the letter as correct
+                        processingGuess[letterIndexOfGuess] = "correct";
 
-                    // marks the letter as used so there aren't any unwanted orange letters
-                    processingWord[letterIndexOfGuess] = "used";
+                        // marks the letter as used so there aren't any unwanted orange letters
+                        processingWord[letterIndexOfGuess] = "used";
 
-                    // waits for the previous letters to animate before animating this letter
+                        // waits for the previous letters to animate before animating this letter
+                        setTimeout(() => {
+
+                            // adds the correct class to the letter spot so it turns green
+                            letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("correct");
+
+                            // adds the popinout class to the letter spot so the animation plays
+                            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
+                        }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                    }
+                }
+
+                // Checks if the guess is wrong spot or not in the word
+                for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+                    if (processingGuess[letterIndexOfGuess] !== "correct") {
+                        if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
+                            let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
+                
+                            // marks the letter as in the wrong spot
+                            processingGuess[letterIndexOfGuess] = "wrong spot";
+                
+                            // marks the letter as used so there aren't any unwanted duplicate orange letters
+                            processingWord[index] = "used";
+                            
+                            // waits for the previous letters to animate before animating this letter
+                            setTimeout(() => {
+                
+                                // adds the wrong class to the letter spot so it turns orange
+                                letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("wrong");
+                
+                                // adds the popinout class to the letter spot so the animation plays
+                                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
+                            }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                        }
+                        else if (processingWord[letterIndexOfGuess] !== "correct") {
+                            // marks the letter as not in the word
+                            processingGuess[letterIndexOfGuess] = "incorrect";
+                
+                            // marks the letter as used so there aren't any unwanted duplicate orange letters
+                
+                            // waits for the previous letters to animate before animating this letter
+                            setTimeout(() => {
+                
+                                // adds the wrong class to the letter spot so it turns grey
+                                letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("incorrect");
+                
+                                // adds the popinout class to the letter spot so the animation plays
+                                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
+                            }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                        }
+                    }
+                }
+
+                // waits for the last letter to animate before changing the colours of the keys
+                setTimeout(() => {
+
+                    // changes all the colours of the keys to match the inputted guess
+                    for (let letter = 0; letter < correctWordLength; letter ++) {
+                        let key = document.getElementById(currentGuessAsOfFunctionCalled[letter].toUpperCase())
+
+                        // changes the key to green if the letter is maked as correct
+                        if (processingGuess[letter] === "correct") {
+                            key.style.backgroundColor = correctGuessColour;
+                        }
+
+                        // changes the key to orange if the letter is maked as in the wrong spot
+                        else if (processingGuess[letter] === "wrong spot") {
+
+                            // sees if the key is already green so it doesn't change it
+                            if ( key.style.backgroundColor !== correctGuessColour) key.style.backgroundColor = wrongSpotGuessColour;
+                        } 
+
+                        // changes the key to grey if the letter is maked as in the incorrect
+                        else {
+                            if ( key.style.backgroundColor !== correctGuessColour && key.style.backgroundColor !== wrongSpotGuessColour)key.style.backgroundColor = incorrectGuessColour;
+                        }
+                    }
+                }, wordCheckAnimationIntervalMS * correctWordLength);
+                
+                
+
+                if (correctWord === usersCurrentGuess) {
+                    wordCorrectlyGuessed = true;
+                    if (!(currentGuessAmount+1 in guessdistribution)) guessdistribution[currentGuessAmount+1] = 0;
+                    guessdistribution[currentGuessAmount+1] ++;
+                    statisticNumbers.played ++;
+                    statisticNumbers.wins ++;
+                    statisticNumbers.streak ++;
+                    if (statisticNumbers.streak > statisticNumbers.maxStreak) statisticNumbers.maxStreak = statisticNumbers.streak
+                    updateStatistics()
                     setTimeout(() => {
+                        if (currentGuessAmount === 0) addNotification("Genius!", notificationTimeOutMS);
+                        if (currentGuessAmount === 1) addNotification("Magnificent!", notificationTimeOutMS);
+                        if (currentGuessAmount === 2) addNotification("Impressive!", notificationTimeOutMS);
+                        if (currentGuessAmount === 3) addNotification("Splendid!", notificationTimeOutMS);
+                        if (currentGuessAmount === 4) addNotification("Great!", notificationTimeOutMS);
+                        if (currentGuessAmount === 5) addNotification("Phew!", notificationTimeOutMS);
+                        setTimeout(() => {
+                            openStatisicsMenu()
+                        }, 2000)
+                    }, wordCheckAnimationIntervalMS * correctWordLength);
+                }
+                else {
 
-                        // adds the correct class to the letter spot so it turns green
-                        letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("correct");
+                    // Increments the current guess amount so the next row can be used
+                    currentGuessAmount ++;
+                    
+                    // Resets the users guess so the user doesn't have to manualy clear the row
+                    usersCurrentGuess = "";
 
-                        // adds the popinout class to the letter spot so the animation plays
-                        letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                    }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                    // User loses condition
+                    if (currentGuessAmount > guessesAllowed - 1) {
+                        statisticNumbers.played ++;
+                        statisticNumbers.streak = 0;
+                        setTimeout(() => {
+                            addNotification(correctWord.toUpperCase(), -1);
+                            setTimeout(() => {
+                                openStatisicsMenu()
+                            }, 2000)
+                        }, wordCheckAnimationIntervalMS * correctWordLength)
+                    }
+                }
+                
+            }
+            else {
+                for (let letterOfWordIndex = 0; letterOfWordIndex < correctWordLength; letterOfWordIndex ++) {
+
+                    // removes the popinout class so the animation can be played again
+                    letterPlacesInsideGride[letterOfWordIndex + currentGuessAmount * correctWordLength].classList.remove("invalid");
+                    letterPlacesInsideGride[letterOfWordIndex + currentGuessAmount * correctWordLength].classList.remove("popinout");
+
+                    // Waits a bit so the browser can remove the class before adding it again
+                    setTimeout(() => {
+                        letterPlacesInsideGride[letterOfWordIndex + currentGuessAmount * correctWordLength].classList.add("invalid");
+                    }, 1);
+                }
+
+                // Notifies the user why their guess was invalid
+                if (wordStatus === 1) {
+                    addNotification(`Not enough letters`, notificationTimeOutMS);
+                }
+                else {
+                    addNotification("Not in word list", notificationTimeOutMS);
                 }
             }
+        }
 
-            // Checks if the guess is wrong spot or not in the word
+        // Add the letter to the guess if the user types a letter
+        else if (guessableSymbols.includes(letter.toLowerCase()) && usersCurrentGuess.length < correctWordLength) {
+            usersCurrentGuess += letter.toLowerCase();
+        }
+
+        // Checks if the guess has changed so the grid can be updated
+        if (currentGuessAsOfFunctionCalled !== usersCurrentGuess) {
+
+            // repeats throught the length of the correct word so all of the gird is updated
             for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
-                if (processingGuess[letterIndexOfGuess] !== "correct") {
-                    if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
-                        let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
-            
-                        // marks the letter as in the wrong spot
-                        processingGuess[letterIndexOfGuess] = "wrong spot";
-            
-                        // marks the letter as used so there aren't any unwanted duplicate orange letters
-                        processingWord[index] = "used";
-                        
-                        // waits for the previous letters to animate before animating this letter
-                        setTimeout(() => {
-            
-                            // adds the wrong class to the letter spot so it turns orange
-                            letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("wrong");
-            
-                            // adds the popinout class to the letter spot so the animation plays
-                            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                        }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
-                    }
-                    else if (processingWord[letterIndexOfGuess] !== "used") {
-                        // marks the letter as not in the word
-                        processingGuess[letterIndexOfGuess] = "incorrect";
-            
-                        // marks the letter as used so there aren't any unwanted duplicate orange letters
-                        // processingWord[letterIndexOfGuess] = "used";
-            
-                        // waits for the previous letters to animate before animating this letter
-                        setTimeout(() => {
-            
-                            // adds the wrong class to the letter spot so it turns grey
-                            letterPlacesInsideGride[currentGuessAmountAsOfFunctionCalled * correctWordLength + letterIndexOfGuess].classList.add("incorrect");
-            
-                            // adds the popinout class to the letter spot so the animation plays
-                            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                        }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
-                    }
-                }
-            }
 
-            // waits for the last letter to animate before changing the colours of the keys
-            setTimeout(() => {
-
-                // changes all the colours of the keys to match the inputted guess
-                for (let letter = 0; letter < correctWordLength; letter ++) {
-                    let key = document.getElementById(currentGuessAsOfFunctionCalled[letter].toUpperCase())
-
-                    // changes the key to green if the letter is maked as correct
-                    if (processingGuess[letter] === "correct") {
-                        key.style.backgroundColor = correctGuessColour;
-                    }
-
-                    // changes the key to orange if the letter is maked as in the wrong spot
-                    else if (processingGuess[letter] === "wrong spot") {
-
-                        // sees if the key is already green so it doesn't change it
-                        if ( key.style.backgroundColor !== correctGuessColour) key.style.backgroundColor = wrongSpotGuessColour;
-                    } 
-
-                    // changes the key to grey if the letter is maked as in the incorrect
-                    else {
-                        if ( key.style.backgroundColor !== correctGuessColour && key.style.backgroundColor !== wrongSpotGuessColour)key.style.backgroundColor = incorrectGuessColour;
-                    }
-                }
-            }, 100 * correctWordLength);
-            
-            
-
-            if (correctWord === usersCurrentGuess) {
-                addNotification("You've won!", -1);
-            }
-            else {
-                // Increments the current guess amount so the next row can be used
-                currentGuessAmount ++;
-
-                // Resets the users guess so the user doesn't have to manualy clear the row
-                usersCurrentGuess = "";
-                if (currentGuessAmount > guessesAllowed - 1) {
-                    addNotification(`${correctWord.toUpperCase()}`, -1);
-                }
-            }
-            
-        }
-        else {
-            for (let letterOfWordIndex = 0; letterOfWordIndex < correctWordLength; letterOfWordIndex ++) {
+                // Resets the text of the current letter spot to nothing in case of a backspace
+                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].textContent = "";
 
                 // removes the popinout class so the animation can be played again
-                letterPlacesInsideGride[letterOfWordIndex + currentGuessAmount * correctWordLength].classList.remove("invalid");
-                letterPlacesInsideGride[letterOfWordIndex + currentGuessAmount * correctWordLength].classList.remove("popinout");
+                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("letterplaced");
 
-                // Waits a bit so the browser can remove the class before adding it again
-                setTimeout(() => {
-                    letterPlacesInsideGride[letterOfWordIndex + currentGuessAmount * correctWordLength].classList.add("invalid");
-                }, 1);
-            }
+                if (letterIndexOfGuess < usersCurrentGuess.length) {
+                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.add("letterplaced");
+                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].textContent = usersCurrentGuess[letterIndexOfGuess].toUpperCase();
+                }
+                
+                // adds and animation to the letter the was changed
+                if (letterIndexOfGuess === usersCurrentGuess.length - ((letter !== "Backspace")? 1: 0)) {
 
-            // Notifies the user why their guess was invalid
-            if (wordStatus === 1) {
-                addNotification(`Not enough letters`, notificationTimeOutMS);
-            }
-            else {
-                addNotification("Not in word list", notificationTimeOutMS);
-            }
-        }
-    }
+                    // removes the popinout class so the animation can be played again
+                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("invalid");
+                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("popinout");
 
-    // Add the letter to the guess if the user types a letter
-    else if (guessableSymbols.includes(letter.toLowerCase()) && usersCurrentGuess.length < correctWordLength) {
-        usersCurrentGuess += letter.toLowerCase();
-    }
-
-    // Checks if the guess has changed so the grid can be updated
-    if (currentGuessAsOfFunctionCalled !== usersCurrentGuess) {
-
-        // repeats throught the length of the correct word so all of the gird is updated
-        for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
-
-            // Resets the text of the current letter spot to nothing in case of a backspace
-            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].textContent = "";
-
-            // removes the popinout class so the animation can be played again
-            letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("letterplaced");
-
-            if (letterIndexOfGuess < usersCurrentGuess.length) {
-                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.add("letterplaced");
-                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].textContent = usersCurrentGuess[letterIndexOfGuess].toUpperCase();
-            }
-            
-            // adds and animation to the letter the was changed
-            if (letterIndexOfGuess === usersCurrentGuess.length - ((letter !== "Backspace")? 1: 0)) {
-
-                // removes the popinout class so the animation can be played again
-                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("invalid");
-                letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.remove("popinout");
-
-                // Waits a bit so the browser can remove the class before adding it again
-                setTimeout(() => {
-                    letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.add("popinout");
-                }, 1);
+                    // Waits a bit so the browser can remove the class before adding it again
+                    setTimeout(() => {
+                        letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmount * correctWordLength].classList.add("popinout");
+                    }, 1);
+                }
             }
         }
     }

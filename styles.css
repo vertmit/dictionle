@@ -1,16 +1,31 @@
 html, body {
     font-family: "Franklin";
     background-color: #121213;
+    margin: 0px;
+}
+
+* {
+    color: white
 }
 
 @font-face {
     font-family: 'Karnak';
-    src: url('NYTKarnakCondensed.ttf') format('truetype');
+    src: url('fonts/NYTKarnakCondensed.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Karnak-400';
+    src: url('fonts/karnak-normal-400.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'Franklin';
-    src: url('franklin-normal-900.ttf') format('truetype');
+    src: url('fonts/franklin-normal-900.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Franklin-Gothic';
+    src: url('fonts/FranklinGothic.ttf') format('truetype');
 }
 
 footer {
@@ -20,6 +35,9 @@ footer {
     a {
         color: rgb(109, 109, 109);
         text-decoration: none;
+    }
+    p {
+        color: unset;
     }
 }
 
@@ -32,14 +50,211 @@ footer {
     
     transform: translateX(-50%);
     width: fit-content;
-    min-height: calc(100vh - 50px);
+    min-height: calc(100vh - 120px);
+}
+
+/*
+How to play popup
+*/
+
+.closeContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse;
+
+}
+
+#howToPlayCloseBg {
+    z-index: 2;
+    filter: blur();
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#howToPlay {
+    transition: transform 300ms, opacity 200ms;
+    width: 470px;
+    padding: 48px;
+    background-color: #121213;
+    border: 1px solid #1a1a1b;
+    border-radius: 10px;
+    z-index: 3;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+h2 {
+    font-family: Franklin;
+    margin: 0px;
+    font-size: 15px;
+}
+
+/* 
+stats tab 
+*/
+
+.menuTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.close {
+    user-select: none;
+    -webkit-user-drag: none;
+    -moz-user-drag: none;
+    -ms-user-drag: none;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+h3 {
+    font-family: Franklin-Gothic;
+    font-size: 15px;
+    color: white;
+}
+
+#stats {
+    transition: transform 300ms, opacity 200ms;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: #121213;
+}
+
+.guessDistributionBox {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+    font-size: 14px;
+    align-items: center;
+}
+
+.guessDistributionIndex {
+    color: white;
+    font-family: Franklin-Gothic;
+}
+
+.guessDistributionBar {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin-left: 10px;
+    padding-inline: 4px;
+    font-family: Franklin-Gothic;
+    background-color: #3a3a3c;
+    color: white;
+    
+    height: 20px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.row {
+    display: flex;
+}
+
+.statNum {
+    text-align: center;
+    font-family: Franklin-Gothic;
+    font-variant-numeric: proportional-nums;
+    color: white;
+    width: 50px;
+    font-size: 45px;
+    margin: 0px;
+    text-align: center;
+}
+
+.statType {
+    letter-spacing: 0.15em;
+    font-family: Franklin-Gothic;
+    text-align: center;
+    color: white;
+    width: 75px;
+    font-size: 15px;
+    margin: 0px;
+}
+
+.holder {
+    padding-top: 100px;
+
+}
+
+/* 
+Navbar
+*/
+
+#nav {
+    z-index: 2;
+    border-bottom: 1px solid #3a3a3c;
+    width: calc(100vw - 50px);
+    margin-bottom: 10px;
+    height: 56px;
+    display: flex;
+    flex-direction: row-reverse;
+    padding-inline: 25px;
 }
 
 h1 {
-    text-align: center;
-    font-size: 50px;
+    margin: 0px;
+    font-size: 30px;
     color: white;
     font-family: karnak;
+    display: block;
+}
+
+#title {
+    display: flex !important;
+    align-items: center;
+    font-size: 30px;
+    color: white;
+    font-family: karnak;
+    display: block;
+    position: absolute;
+    left: 30px;
+    top: 9px;
+    img {
+        margin-right: 5px;
+        height: 30px;
+    }
+}
+
+.navOption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    aspect-ratio: 1;
+    cursor: pointer;
+    img {
+        -webkit-user-drag: none;
+        -moz-user-drag: none;
+        -ms-user-drag: none;
+        height: 60%;
+        aspect-ratio: 1;
+    }
+}
+
+.navOption:hover {
+    background-color: #363636;
 }
 
 /* 
@@ -51,12 +266,13 @@ Notifications
     display: flex;
     flex-direction: column-reverse;
     position: absolute;
-    top: 10px;
+    top: 5px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .notification{
+    user-select: none;
     position: relative;
     background-color: white;
     color: black;
@@ -72,11 +288,23 @@ Notifications
 Keyboard 
 */
 
+#keyboard {
+    width: 500px;
+}
+
+@media screen and (max-width: 600px) {
+    #keyboard {
+        max-width: calc(100vw - 16vw) !important;
+        font-size: 100%;
+    }
+}
+
 .keyRow {
     display: flex;
     gap: 5px;
     margin-bottom: 5px;
     justify-content: center;
+    width: 100%;
 }
 
 .key {
@@ -84,19 +312,24 @@ Keyboard
     color: #f8f8f8;
     border-radius: 5px;
     background-color: #818384;
-    width: 43px;
-    height: 58px;
+    width: 9.0526315789%;
+    aspect-ratio: 43/58;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1.25em;
-    font-weight: 900;
     cursor: pointer;
+}
+
+#Backspace {
+    font-size: 1.25em !important;
 }
 
 /* Wider keys for longer ones like 'Enter' and 'Backspace' */
 .streached {
-    width: 65.408px !important;
+    width: 13.6842105262%;
+    aspect-ratio: unset;
+    /* aspect-ratio: 65/58 !important; */
     font-size: 15px !important;
 }
 
