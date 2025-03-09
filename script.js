@@ -23,7 +23,7 @@ const howToPlayBTN = document.getElementById("howToPlayBTN");
 let currentGuessAmount = 0;
 let usersCurrentGuess = "";
 
-let wordCorrectlyGuessed = false;
+let gameEnded = false;
 
 // pickes a random word from the list of words found in the words.js file to be used as the correct word
 const correctWord = words[Math.floor(Math.random() * words.length)]; 
@@ -212,9 +212,9 @@ function addNotification(message, timeOutMS) {
     }, timeOutMS);
 }
 
-// 
+// Events that happen when a button is pressed
 function keyDownProsses(letter) {
-    if (!wordCorrectlyGuessed) {
+    if (!gameEnded) {
         // keeps track of the current guess status so the sleep block aren't affected
         const currentGuessAmountAsOfFunctionCalled = currentGuessAmount;
         const currentGuessAsOfFunctionCalled = usersCurrentGuess;
@@ -332,10 +332,8 @@ function keyDownProsses(letter) {
                     }
                 }, wordCheckAnimationIntervalMS * correctWordLength);
                 
-                
-
                 if (correctWord === usersCurrentGuess) {
-                    wordCorrectlyGuessed = true;
+                    gameEnded = true;
                     if (!(currentGuessAmount+1 in guessdistribution)) guessdistribution[currentGuessAmount+1] = 0;
                     guessdistribution[currentGuessAmount+1] ++;
                     statisticNumbers.played ++;
@@ -365,8 +363,12 @@ function keyDownProsses(letter) {
 
                     // User loses condition
                     if (currentGuessAmount > guessesAllowed - 1) {
+ 
                         statisticNumbers.played ++;
                         statisticNumbers.streak = 0;
+                        gameEnded = 1;
+
+                        updateStatistics()
                         setTimeout(() => {
                             addNotification(correctWord.toUpperCase(), -1);
                             setTimeout(() => {
@@ -438,7 +440,6 @@ function keyDownProsses(letter) {
         }
     }
 }
-
 
 // checks for key presses to add or subtract from the guess
 window.addEventListener("keydown", (event) => {
