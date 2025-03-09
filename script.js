@@ -32,7 +32,7 @@ const correctWord = words[Math.floor(Math.random() * words.length)];
 const notificationTimeOutMS = 1000;
 
 // Sets a time in MS between each letter whist getting checked
-const wordCheckAnimationIntervalMS = 750;
+const wordCheckAnimationIntervalMS = 250;
 
 // Sets the amount of letters in the correct word and the amount of guesses allowed
 const correctWordLength = correctWord.length;
