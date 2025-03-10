@@ -14,13 +14,18 @@
             <img src="images/favicon.ico" alt="">
             Dictionle
         </div>
+        <div class="navOption" id="settingsBTN">
+            <img src="images/settings.png" alt="">
+        </div>
         <div class="navOption" id="howToPlayBTN">
             <img src="images/help.png" alt="">
         </div>
         <div class="navOption" id="statisticsBTN">
             <img src="images/leaderboard.png" alt="">
         </div>
-        
+        <div class="navOption" id="hintBTN" style="display: none;">
+            <img src="images/lightbulb.png" alt="">
+        </div>
     </div>
     <div id="stats" style="opacity: 0; display: none; transform: translateY(5%);">
         <div class="holder">
@@ -50,8 +55,8 @@
             <div id="guessDistrobutionHolder"></div>
         </div>
     </div>
-    <div id="howToPlayCloseBg" style="display: none;"></div>
-    <div id="howToPlay" style="opacity: 0; display: none; transform: translate(-50%, -45%);">
+    <div class="popupBg" id="howToPlayCloseBg" style="display: none;"></div>
+    <div id="howToPlay" class="popup" style="opacity: 0; display: none; transform: translate(-50%, -45%);">
         <div class="closeContainer">
             <img id="howToPlayCloseBTN" class="close" src="images/close.png">
         </div>
@@ -91,6 +96,33 @@
         </ul>
     </div>
     
+    <div class="popupBg" id="hintCloseBg" style="display: none;"></div>
+    <div id="hintPopup" class="popup" style="opacity: 0; display: none; transform: translate(-50%, -45%);">
+        <div class="closeContainer">
+            <img id="hintCloseBTN" class="close" src="images/close.png">
+        </div>
+        
+        <h1>Geting A Hint?</h1>
+        <h2>By getting a hint you automaticly give up 4 of your guess, but inturn will get one of the definitions of the word.</h2>
+        <button id="getHintBTN">Get Hint</button>
+    </div>
+
+    <div class="popupBg" id="settingsCloseBg" style="display: none;"></div>
+    <div id="settingsPopup" class="popup" style="opacity: 0; display: none; transform: translate(-50%, -45%);">
+        <div class="closeContainer">
+            <img id="settingsCloseBTN" class="close" src="images/close.png">
+        </div>
+        
+        <h1>Settings</h1>
+        
+        <div class="settingOption">
+            Create Custom Game
+            <div id="customGameInputHolder">
+                <div contenteditable="true" id="customGameInput">word</div>
+                <img src="images/copy.png" title="Get Game Link" id="customGameCopy">
+            </div>
+        </div>
+    </div>
 
     <div class="container">
 

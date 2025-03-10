@@ -53,6 +53,103 @@ footer {
     min-height: calc(100vh - 120px);
 }
 
+/* 
+Settings popup
+*/
+
+#customGameInputHolder {
+    display: flex;
+    gap: 5px;
+}
+
+#customGameCopy{
+    height: 23px;
+    cursor: pointer;
+}
+
+#customGameInput {
+    text-transform: uppercase;
+    border: 2px solid #565758;
+    min-width: 15ch;
+    outline: none;
+}
+
+#customGameInput:hover {
+    outline: none;
+}
+
+.settingOption {
+    margin-top: 20px;
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.slider {
+    
+    width: 45px;
+    height: 24px;
+    border-radius: 25px;
+    background-color: #565758;
+    position: relative;
+    cursor: pointer;
+    div {
+        transition: left 200ms;
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        background-color: #ffffff;
+        height: 20px;
+        width: 20px;
+        border-radius: 10px;
+    }
+}
+
+.slider.active {
+    background-color: #538d4e;
+    div {
+        left: 23px;
+    }
+}
+
+/* 
+Get Hint popup
+*/
+
+.hintBox {
+    border: 2px solid #565758;
+    margin-top: 40px;
+    position: relative;
+    padding-top: 10px;
+    p {
+        margin: 10px;
+        user-select: none;
+    }
+    h2 {
+        padding-inline: 5px;
+        display: block;
+        background-color: #121213;
+        font-size: 20px;
+        position: absolute;
+        left: 10px;
+        top: 0px;
+        transform: translateY(-50%);
+    }
+}
+
+#getHintBTN {
+    cursor: pointer;
+    margin-top: 20px;
+    font-family: Franklin;
+    font-size: 20px;
+    background-color: #121213;
+    border: 2px solid #565758;
+}
+
+#getHintBTN:hover {
+    filter: brightness(0.8);
+}
+
 /*
 How to play popup
 */
@@ -93,7 +190,7 @@ li {
 
 }
 
-#howToPlayCloseBg {
+.popupBg {
     z-index: 2;
     filter: blur();
     position: fixed;
@@ -104,7 +201,7 @@ li {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-#howToPlay {
+.popup {
     transition: transform 300ms, opacity 200ms;
     width: 470px;
     padding: 48px;
@@ -119,7 +216,7 @@ li {
 }
 
 @media screen and (max-width: 518px) {
-    #howToPlay {
+    .popup {
         width: calc(100vw - 48px);
     }
 }
@@ -242,6 +339,7 @@ Navbar
 */
 
 #nav {
+    overflow: hidden;
     position: relative;
     z-index: 2;
     border-bottom: 1px solid #3a3a3c;
@@ -490,6 +588,10 @@ Guess Grid
     border: 2px solid #b59f3b;
 }
 
+.hinted {
+    border: 2px solid #272727;
+}
+
 /* 
 Animations 
 */
@@ -501,6 +603,15 @@ Animations
 .invalid {
     animation: notValid 500ms;
 }
+
+.hideNavOption {
+    animation: hideNavButton 500ms forwards;
+}
+
+.showNavOption {
+    animation: showNavButton 500ms forwards;
+}
+
 
 @keyframes letterAnimation {
     0% {
@@ -533,5 +644,39 @@ Animations
     100% {
         transform: translateX(0);
     }
-    
+}
+
+@keyframes hideNavButton {
+    0% {
+        transform: translateY(0%);
+    }
+    50% {
+        transform: translateY(-20%);
+    }
+    65% {
+        transform: translateY(-20%);
+    }
+    99% {
+        transform: translateY(100%);
+    }
+    100% {
+        display: none;
+    }
+}
+
+
+@keyframes showNavButton {
+    0% {
+        display: flex;
+        transform: translateY(100%);
+    }
+    35% {
+        transform: translateY(-20%);
+    }
+    50% {
+        transform: translateY(-20%);
+    }
+    99% {
+        transform: translateY(0%);
+    }
 }
