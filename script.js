@@ -74,6 +74,22 @@ function runGame() {
             howToPlayPopup.style.transform = "translate(-50%, -50%)"
             howToPlayBackground.style.display = "block";
         }, 10)
+
+
+        let helpExampleTilePassedAmount = 0;
+        for (let helpExampleTile of document.getElementsByClassName("helpTile")) {
+            helpExampleTile.classList.remove("incorrect")
+            helpExampleTile.classList.remove("wrong")
+            helpExampleTile.classList.remove("correct")
+            helpExampleTile.classList.remove("popinout")
+            setTimeout(() => {
+                helpExampleTile.classList.add("popinout")
+                if (helpExampleTile.classList.contains("correctHelp")) helpExampleTile.classList.add("correct");
+                if (helpExampleTile.classList.contains("wrongHelp")) helpExampleTile.classList.add("wrong");
+                if (helpExampleTile.classList.contains("incorrectHelp")) helpExampleTile.classList.add("incorrect");
+            }, helpExampleTilePassedAmount*wordCheckAnimationIntervalMS + 250)
+            helpExampleTilePassedAmount ++;
+        }
     }
 
     function closeHowToPlayPopup() {
