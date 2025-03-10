@@ -15,23 +15,28 @@ const urlParams = new URLSearchParams(queryString);
 const asearch = urlParams.get('a');
 
 function runGame() {
-
     function decyptText(text) {
-        console.log(text)
+        if (text.length % 3 !== 0) {
+            return 0;
+        }
+        Math.seedrandom(text.length/3);
+
         let decrypedString = ""
         for (let char = 0; char < text.length; char += 3) {
-            decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/7+96)}`
+            decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/Math.round(Math.random()*38)+96)}`
         }
+        Math.seedrandom(Date.now())
         return decrypedString 
     }
 
     function encyptText(text) {
+        Math.seedrandom(text.length);
         text = text.toLowerCase()
         let encrypedString = ""
         for (let char of text) {
-            encrypedString = `${encrypedString}${String((char.charCodeAt(0)-96)*7).padStart(3, "0")}`
-            
+            encrypedString = `${encrypedString}${String((char.charCodeAt(0)-96)*Math.round(Math.random()*38)).padStart(3, "0")}`
         }
+        Math.seedrandom(Date.now())
         return encrypedString
     }
 
@@ -87,7 +92,9 @@ function runGame() {
     let disableGamePlay = false;
 
     // pickes a random word from the list of words found in the words.js file to be used as the correct word
-    const correctWord = (asearch)? decyptText(asearch): words[Math.floor(Math.random() * words.length)]; 
+    const correctWord = (asearch && words.includes(decyptText(asearch)))? decyptText(asearch): words[Math.floor(Math.random() * words.length)]; 
+
+    console.log(correctWord, decyptText(asearch), words.includes(decyptText(asearch)))
 
     let correctWordDefinitions = "";
     getDefinitionOfWord(correctWord).then(definitions => {

@@ -112,6 +112,18 @@ Settings popup
     }
 }
 
+@media screen and (max-width: 518px) { 
+    #customGameCopy {
+        height: 18px;
+    }
+    #customGameInput {
+        font-size: 15px;
+    }
+    .settingOption {
+        font-size: 15px;
+    }
+}
+
 /* 
 Get Hint popup
 */
@@ -218,6 +230,15 @@ li {
 @media screen and (max-width: 518px) {
     .popup {
         width: calc(100vw - 48px);
+    }
+    li {
+        font-size: 10px;
+    }
+    h2 {
+        font-size: 17px;
+    }
+    .popupTitle {
+        font-size: 25px;
     }
 }
 
@@ -452,14 +473,23 @@ Keyboard
 
 @media screen and (max-width: 600px) {
     #keyboard {
-        position: absolute;
         bottom: 0px;
         max-width: calc(100vw - 16vw) !important;
         font-size: 100%;
     }
 }
 
-
+@media screen and (max-width: 550px) {
+    #keyboard {
+        position: absolute;
+    }
+    footer {
+        display: none;
+    }
+    .container {
+        min-height: calc(100vh - 75px);
+    }
+}
 
 .keyRow {
     display: flex;
@@ -511,7 +541,7 @@ Guess Grid
     flex-direction: column;
     gap: 5px;
     justify-content: center;
-    max-width: 100vw;
+    max-width: calc(100vw - 20px);
     overflow-x: auto;
     overflow-y: visible;
     margin-bottom: 10px;
@@ -530,7 +560,6 @@ Guess Grid
     background-color: #121213;
     width: 55px;
     aspect-ratio: 1;
-    /* height: 65px; */
     border: 2px solid #3a3a3c;
     display: flex;
     justify-content: center;
@@ -545,9 +574,17 @@ Guess Grid
     }
 }
 
+@media screen and (max-width: 500px) {
+    .letter {
+        width: 50px;
+        
+    }
+}
+
+
 @media screen and (max-width: 400px) {
     .letter {
-        width: 15vw;
+        width: 12.5vw;
     }
 }
 
