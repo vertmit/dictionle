@@ -94,8 +94,6 @@ function runGame() {
     // pickes a random word from the list of words found in the words.js file to be used as the correct word
     const correctWord = (asearch && words.includes(decyptText(asearch)))? decyptText(asearch): words[Math.floor(Math.random() * words.length)]; 
 
-    console.log(correctWord, decyptText(asearch), words.includes(decyptText(asearch)))
-
     let correctWordDefinitions = "";
     getDefinitionOfWord(correctWord).then(definitions => {
         correctWordDefinitions = definitions;
