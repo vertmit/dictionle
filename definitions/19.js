@@ -1,0 +1,1 @@
+export const definitions = {'devils-on-horseback': 'n.pl. Savoury of prunes or plums wrapped in bacon.', 'interdenominational': 'adj. Concerning more than one (religious) denomination.', 'self-aggrandizement': 'n. Process of enriching oneself or making oneself powerful.'}

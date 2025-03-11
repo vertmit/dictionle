@@ -1,0 +1,1 @@
+export const definitions = {'electroencephalograph': 'n. Instrument that records the electrical activity of the brain.'}

@@ -1,0 +1,1 @@
+export const definitions = {'electroencephalogram': 'n. Record traced by an electroencephalograph. [german: related to *electro-]', 'green-stick fracture': 'n. Bone-fracture, esp. In children, in which one side of the bone is broken and one only bent.'}

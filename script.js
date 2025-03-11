@@ -1,13 +1,61 @@
+// expected output of "getDefinitionOfWord" function
+// -1: No definition found
+// success: {
+//      definition
+//      source
+// }
 async function getDefinitionOfWord(word) {
-    try {
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-        const data = await response.json();
-        const definitions = data[0].meanings[0].definitions;
-        return definitions;
-    } catch (error) {
-        console.clear();
-        return -1;
+
+    // sees if it is possible for the word to be stored localy (max length 21 letters)
+    if (word.length <= 21) {
+        try {
+            // Each file is named with how many letters each word contains
+            const fileLocationOfLocalDefinition = `./definitions/${word.length}.js`
+            const gatheredDefinitionsFromLocalFile = await import(fileLocationOfLocalDefinition);
+
+            // Sees if the word does have a definition 
+            if (gatheredDefinitionsFromLocalFile.definitions[word]) {
+                return {
+                    definition: gatheredDefinitionsFromLocalFile.definitions[word],
+                    source: "Oxford English Dictionary"
+                };
+            }
+        } catch {}
     }
+
+    try {
+        // Define the API URL with parameters
+        const url = `https://en.wiktionary.org/w/api.php?action=query&titles=${word}&prop=revisions&rvprop=content&format=json&origin=*`;
+
+        // Fetch the data from the Wiktionary API
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Gets the page of the definition
+        const page = data.query.pages;
+        const pageId = Object.keys(page)[0];
+
+        // Sees if the page exists
+        if (pageId !== "-1") {
+
+            // Gets the content of the page
+            const content = page[pageId].revisions[0]["*"];
+
+            // Removes wiki formatting
+            const gatheredDefinition = content.split("#")[1].split("\n")[0] .replace(/\[\[([^\|\]]+\|)?([^\]]+)\]\]/g, '$2').replace(/\{\{[^}]+\}\}/g, '').replace(/<!--[^>]+-->/g, '').replace(/<[^>]+>/g, '').replace(/'{2,}/g, '').trim().replace(word, "*Dictionle Answer*");
+            
+            if (gatheredDefinition) {
+                return {
+                    definition: gatheredDefinition,
+                    source: "Wiktionary"
+                };
+                
+            }
+        }
+    } catch {}
+
+    // No definitions found
+    return -1;
 }
 
 const queryString = window.location.search;
@@ -15,6 +63,8 @@ const urlParams = new URLSearchParams(queryString);
 const asearch = urlParams.get('a');
 
 function runGame() {
+
+    // decrypts the encryped text
     function decyptText(text) {
         if (text.length % 3 !== 0) {
             return 0;
@@ -29,7 +79,10 @@ function runGame() {
         return decrypedString 
     }
 
+    // Encrypes text in to 3 digit numbers per letter
     function encyptText(text) {
+
+        // Sets the random see to length so that it's harder to decryped without the decypt function
         Math.seedrandom(text.length);
         text = text.toLowerCase()
         let encrypedString = ""
@@ -74,41 +127,46 @@ function runGame() {
     const customGameCopyBTN = document.getElementById("customGameCopy")
     const customGameInput = document.getElementById("customGameInput")
 
+    // Store if hint has been revield so the hint button doesn't dissapear when you get a hint
     let hasHintRevealed = false;
 
-    const hintRevealingGuessCost = 4;
-
     // Getting Navbar buttons
-    const statisticsBTN = document.getElementById("statisticsBTN");
-    const howToPlayBTN = document.getElementById("howToPlayBTN");
-    const hintBTN = document.getElementById("hintBTN");
-    const settingsBTN = document.getElementById("settingsBTN");
+    const statisticsNavigationBarBTN = document.getElementById("statisticsBTN");
+    const howToPlayNavigationBarBTN = document.getElementById("howToPlayBTN");
+    const hintNavigationBarBTN = document.getElementById("hintBTN");
+    const settingsNavigationBarBTN = document.getElementById("settingsBTN");
 
     let currentGuessAmount = 0;
     let usersCurrentGuess = "";
 
+    // Tells the system to stop acting on events from key presses
     let gameEnded = false;
 
+    // Disables the game, use cases like opening menu so background presses
     let disableGamePlay = false;
 
     // pickes a random word from the list of words found in the words.js file to be used as the correct word
     const correctWord = (asearch && words.includes(decyptText(asearch)))? decyptText(asearch): words[Math.floor(Math.random() * words.length)]; 
 
+    // Get the definition of the selected word
     let correctWordDefinitions = "";
     getDefinitionOfWord(correctWord).then(definitions => {
         correctWordDefinitions = definitions;
-            if (correctWordDefinitions !== -1) {
-                hintBTN.style.display = "flex"
-                hintBTN.classList.add("showNavOption")
-            }
+
+        // Show the hint button if there's an avalible definition
+        if (correctWordDefinitions !== -1) {
+            hintNavigationBarBTN.style.display = "flex"
+            hintNavigationBarBTN.classList.add("showNavOption")
+        }
     })
 
-    for (let slider of document.getElementsByClassName("slider")) {
-        slider.addEventListener("click", ()=>{
-            if (slider.classList.contains("active")) {
-                slider.classList.remove("active")
+    // adds functionality to toggle buttons
+    for (let toggleButton of document.getElementsByClassName("slider")) {
+        toggleButton.addEventListener("click", ()=>{
+            if (toggleButton.classList.contains("active")) {
+                toggleButton.classList.remove("active")
             } else {
-                slider.classList.add("active")
+                toggleButton.classList.add("active")
             }
         })
     }
@@ -122,6 +180,9 @@ function runGame() {
     // Sets the amount of letters in the correct word and the amount of guesses allowed
     const correctWordLength = correctWord.length;
     const guessesAllowed = 6;
+
+    // What guess will get skiped to when getting a hint
+    const hintRevealingSkipToGuessCost = guessesAllowed - 1;
 
     // Sets the colours for the different types of guesses
     const correctGuessColour = "rgb(83, 141, 78)";
@@ -151,6 +212,7 @@ function runGame() {
         wordHolder.appendChild(wordRow);
     }
 
+    // Opens the settings popup when ran
     function openSettingsPopup() {
         disableGamePlay = true;
         settingsPopup.style.display = "block";
@@ -161,6 +223,7 @@ function runGame() {
         }, 10)
     }
 
+    // Closes the settings popup when ran
     function closeSettingsPopup() {
         disableGamePlay = false;
         settingsPopup.style.transform = "translate(-50%, -45%)";
@@ -171,6 +234,7 @@ function runGame() {
         }, 200)
     }
 
+    // Opens the hint popup when ran
     function openHintPopup() {
         disableGamePlay = true;
         hintPopup.style.display = "block";
@@ -181,6 +245,7 @@ function runGame() {
         }, 10)
     }
 
+    // Closes the hint popup when ran
     function closeHintPopup() {
         disableGamePlay = false;
         hintPopup.style.transform = "translate(-50%, -45%)";
@@ -191,6 +256,7 @@ function runGame() {
         }, 200)
     }
 
+    // Opens the how to play popup when ran
     function openHowToPlayPopup() {
         disableGamePlay = true;
         howToPlayPopup.style.display = "block";
@@ -200,13 +266,17 @@ function runGame() {
             howToPlayBackground.style.display = "block";
         }, 10)
 
-
+        // Animates the tiles in the help menu to gradully reviel like the accual game
         let helpExampleTilePassedAmount = 0;
         for (let helpExampleTile of document.getElementsByClassName("helpTile")) {
+
+            // Removes the classes that change the colour so it cna be animated
             helpExampleTile.classList.remove("incorrect")
             helpExampleTile.classList.remove("wrong")
             helpExampleTile.classList.remove("correct")
             helpExampleTile.classList.remove("popinout")
+
+            // Add the propaties of a revieled tile after the previous tiles have revieled
             setTimeout(() => {
                 helpExampleTile.classList.add("popinout")
                 if (helpExampleTile.classList.contains("correctHelp")) helpExampleTile.classList.add("correct");
@@ -217,7 +287,19 @@ function runGame() {
         }
     }
 
-    function openStatisicsMenu() {
+    // Closes the how to play popup when ran
+    function closeHowToPlayPopup() {
+        disableGamePlay = false;
+        howToPlayPopup.style.transform = "translate(-50%, -45%)";
+        howToPlayPopup.style.opacity = 0;
+        setTimeout(() => {
+            howToPlayPopup.style.display = "none";
+            howToPlayBackground.style.display = "none";
+        }, 200)
+    }
+
+    // Opens the statistics popup when ran
+    function openStatisticsMenu() {
         disableGamePlay = true;
         statisticsMenu.style.display = "flex";
         setTimeout(() => {
@@ -227,23 +309,13 @@ function runGame() {
         
     }
 
-    function closeStatisicsMenu() {
+    // Closes the statistics popup when ran
+    function closeStatisticsMenu() {
         disableGamePlay = false;
         statisticsMenu.style.transform = "translateY(5%)";
         statisticsMenu.style.opacity = 0;
         setTimeout(() => {
             statisticsMenu.style.display = "none";
-        }, 200)
-    }
-
-
-    function closeHowToPlayPopup() {
-        disableGamePlay = false;
-        howToPlayPopup.style.transform = "translate(-50%, -45%)";
-        howToPlayPopup.style.opacity = 0;
-        setTimeout(() => {
-            howToPlayPopup.style.display = "none";
-            howToPlayBackground.style.display = "none";
         }, 200)
     }
 
@@ -281,7 +353,7 @@ function runGame() {
         }
     })
 
-    settingsBTN.addEventListener("click", ()=>{
+    settingsNavigationBarBTN.addEventListener("click", ()=>{
         openSettingsPopup()
     })
 
@@ -302,49 +374,50 @@ function runGame() {
     })
 
 
-    hintBTN.addEventListener("click", ()=>{
+    hintNavigationBarBTN.addEventListener("click", ()=>{
         openHintPopup();
     })
 
     getHintBTN.addEventListener("click", ()=>{
         getHintBTN.remove();
         if (correctWordDefinitions !== -1) {
-            if (guessesAllowed - currentGuessAmount - hintRevealingGuessCost - 1 > 0) {
-                const hintBox = document.createElement("div");
-                hintBox.classList.add("hintBox")
+            const hintBox = document.createElement("div");
+            hintBox.classList.add("hintBox")
 
-                const hintTitle = document.createElement("h2");
-                hintTitle.textContent = "Hint"
+            const hintTitle = document.createElement("h2");
+            hintTitle.textContent = "Hint"
 
-                const hintText = document.createElement("p");
-                hintText.textContent = correctWordDefinitions[0].definition;
+            const hintText = document.createElement("p");
+            hintText.textContent = correctWordDefinitions.definition;
 
-                hintBox.appendChild(hintTitle)
-                hintBox.appendChild(hintText)
-                hintPopup.appendChild(hintBox)
+            const sourceText = document.createElement("p");
+            sourceText.classList.add("hintSource")
+            sourceText.textContent = correctWordDefinitions.source;
 
-                hasHintRevealed = true;
-                
-                for (let i = 0; i < hintRevealingGuessCost; i++) {
-                    for (let e = 0; e < correctWordLength; e ++) {
-                        const currentLetterToBeChanged = letterPlacesInsideGride[(currentGuessAmount + i) * correctWordLength + e]
-                        
-                        currentLetterToBeChanged.classList.remove("popinout")
-                        setTimeout(()=>{
-                            currentLetterToBeChanged.textContent = ""
-                            currentLetterToBeChanged.classList.add("popinout")
-                            currentLetterToBeChanged.classList.add("hinted")
-                        }, (i + e)*100)
-                        
-                    }
+
+            hintBox.appendChild(sourceText)
+            hintBox.appendChild(hintTitle)
+            hintBox.appendChild(hintText)
+            hintPopup.appendChild(hintBox)
+
+            hasHintRevealed = true;
+            
+            for (let i = 0; i < hintRevealingSkipToGuessCost - currentGuessAmount; i++) {
+                for (let e = 0; e < correctWordLength; e ++) {
+                    const currentLetterToBeChanged = letterPlacesInsideGride[(currentGuessAmount + i) * correctWordLength + e]
+                    
+                    currentLetterToBeChanged.classList.remove("popinout")
+                    setTimeout(()=>{
+                        currentLetterToBeChanged.textContent = ""
+                        currentLetterToBeChanged.classList.add("popinout")
+                        currentLetterToBeChanged.classList.add("hinted")
+                    }, (i + e)*100)
+                    
                 }
-                keyDownProsses("")
-                currentGuessAmount += hintRevealingGuessCost
-            } else {
-                const hintText = document.createElement("p");
-                hintText.textContent = `You don't have enough guesses left to reveal the hint (Cost ${hintRevealingGuessCost} guesses)`;
-                hintPopup.appendChild(hintText)
             }
+            keyDownProsses("")
+            currentGuessAmount += hintRevealingSkipToGuessCost
+
         } else {
             const hintText = document.createElement("p");
             hintText.textContent = "No Definition Found";
@@ -354,7 +427,7 @@ function runGame() {
 
     
 
-    howToPlayBTN.addEventListener("click", ()=>{
+    howToPlayNavigationBarBTN.addEventListener("click", ()=>{
         openHowToPlayPopup();
     })
 
@@ -376,13 +449,13 @@ function runGame() {
 
     const statisticsCloseButton = document.getElementById("statsClose");
 
-    statisticsBTN.addEventListener("click", ()=>{
-        openStatisicsMenu();
+    statisticsNavigationBarBTN.addEventListener("click", ()=>{
+        openStatisticsMenu();
     })
 
     
     statisticsCloseButton.addEventListener("click", ()=>{
-        closeStatisicsMenu();
+        closeStatisticsMenu();
     }) 
 
     function updateStatistics() {
@@ -394,29 +467,41 @@ function runGame() {
             guessDistributionHolder.firstChild.remove();
         }
 
-        const maxGuess = (Object.keys(guessdistribution).length > 0)? Object.keys(guessdistribution).slice(-1): 0;
+        const maxGuess = (Object.keys(guessdistribution).length > 0)? (Object.keys(guessdistribution).slice(-1) == "hinted")? Object.keys(guessdistribution).slice(-2)[0]: Object.keys(guessdistribution).slice(-1): 0;
 
-        for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1; i++ ) {
+        for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+2; i++ ) {
+            if (i === guessesAllowed + 1) i = "hinted"
             if (i in guessdistribution) {
+                
                 guessDistributionNumbers.push(guessdistribution[i]);
             } else {
                 guessDistributionNumbers.push(0)
             }
         }
 
+        
         const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
 
         statisticsNumberGamesPlayed.textContent = statisticNumbers.played;
         statisticsNumberWinPercent.textContent = (statisticNumbers.played !== 0)? Math.round(statisticNumbers.wins / statisticNumbers.played * 100): 0;
         statisticsNumberCurrentStreak.textContent = statisticNumbers.streak;
+        
         statisticsNumberMaxStreak.textContent = statisticNumbers.maxStreak;
 
         for (let i = 0; i < guessDistributionNumbers.length; i ++) {
+
             const guessDistributionBox = document.createElement("div");
             guessDistributionBox.className = "guessDistributionBox";
 
             const indexNumberOfGuess = document.createElement("div");
-            indexNumberOfGuess.textContent = i + 1;
+            
+            if (i == guessDistributionNumbers.length -1) {
+                
+                const hintedBarIndicator = document.createElement("img")
+                hintedBarIndicator.src = "images/lightbulb.png"
+                indexNumberOfGuess.appendChild(hintedBarIndicator)
+            }
+            else indexNumberOfGuess.textContent = i + 1;
             indexNumberOfGuess.className = "guessDistributionIndex";
             guessDistributionBox.appendChild(indexNumberOfGuess)
 
@@ -585,16 +670,17 @@ function runGame() {
                         }
                     }, wordCheckAnimationIntervalMS * correctWordLength);
                     
-                    if (currentGuessAmount > guessesAllowed - hintRevealingGuessCost - 1 && !hasHintRevealed) {
-                        hintBTN.classList.remove("showNavOption")
-                        hintBTN.classList.add("hideNavOption")
+                    if (currentGuessAmount > guessesAllowed - hintRevealingSkipToGuessCost - 1 && !hasHintRevealed) {
+                        hintNavigationBarBTN.classList.remove("showNavOption")
+                        hintNavigationBarBTN.classList.add("hideNavOption")
                     }
 
                     if (correctWord === usersCurrentGuess) {
                         gameEnded = true;
                         if (!asearch) {
-                            if (!(currentGuessAmount+1 in guessdistribution)) guessdistribution[currentGuessAmount+1] = 0;
-                            guessdistribution[currentGuessAmount+1] ++;
+                            const guessIndexInStatistics = (!hasHintRevealed)? currentGuessAmount+1: "hinted";
+                            if (!(guessIndexInStatistics in guessdistribution)) guessdistribution[guessIndexInStatistics] = 0;
+                            guessdistribution[guessIndexInStatistics] ++;
                             statisticNumbers.played ++;
                             statisticNumbers.wins ++;
                             statisticNumbers.streak ++;
@@ -602,14 +688,18 @@ function runGame() {
                         }
                         updateStatistics()
                         setTimeout(() => {
+
+                            // Gives the user a comment when they beat the game to show how well they did
                             if (currentGuessAmount === 0) addNotification("Genius!", notificationTimeOutMS);
                             if (currentGuessAmount === 1) addNotification("Magnificent!", notificationTimeOutMS);
                             if (currentGuessAmount === 2) addNotification("Impressive!", notificationTimeOutMS);
                             if (currentGuessAmount === 3) addNotification("Splendid!", notificationTimeOutMS);
                             if (currentGuessAmount === 4) addNotification("Great!", notificationTimeOutMS);
                             if (currentGuessAmount === 5) addNotification("Phew!", notificationTimeOutMS);
+
+
                             setTimeout(() => {
-                                openStatisicsMenu()
+                                openStatisticsMenu()
                             }, 2000)
                         }, wordCheckAnimationIntervalMS * correctWordLength);
                     }
@@ -633,7 +723,7 @@ function runGame() {
                             setTimeout(() => {
                                 addNotification(correctWord.toUpperCase(), -1);
                                 setTimeout(() => {
-                                    openStatisicsMenu()
+                                    openStatisticsMenu()
                                 }, 2000)
                             }, wordCheckAnimationIntervalMS * correctWordLength)
                         }
