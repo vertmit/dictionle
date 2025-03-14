@@ -103,7 +103,7 @@
         </div>
         
         <h1 class="popupTitle">Geting A Hint?</h1>
-        <h2>By getting a hint you automaticly give up 4 of your guess, but inturn will get one of the definitions of the word.</h2>
+        <h2>By getting a hint you automaticly skip to your last guess, waiting until your on the last guess is option but recommened.</h2>
         <button id="getHintBTN">Get Hint</button>
     </div>
 
@@ -115,14 +115,37 @@
         
         <h1 class="popupTitle">Settings</h1>
         
+        
         <div class="settingOption">
-            Create Custom Game
-            <div id="customGameInputHolder">
-                <div contenteditable="true" id="customGameInput">word</div>
-                <img src="images/copy.png" title="Get Game Link" id="customGameCopy">
+            High Contrast Mode
+            <div class="slider" id="contrast"><div></div></div>
+        </div>
+        <div class="settingOption">
+            On Screen Keybord Input Only
+            <div class="slider" id="keyoption"><div></div></div>
+        </div>
+        <div class="settingOption">
+            Show Animations
+            <div class="slider active" id="showAnimations"><div></div></div>
+        </div>
+        <div class="settingOption settingSubOptionGroup">
+            <div class="flexRow">
+                Create Custom Game
+                <div class="settingsMenuBTN"  id="customGameCopy"><img src="images/copy.png" title="Get Game Link">Copy Link</div>
+            </div>
+            <div class="subSetting">
+                <p class="subSettingTitle">Selected Word</p>
+                <div class="flexRow">
+                    <div contenteditable="true" id="customGameInput">word</div>
+                </div>
+            </div>
+            <div class="subSetting">
+                <p class="subSettingTitle">Allow Hints</p>
+                <div class="slider active" id="enableHints"><div></div></div>
             </div>
         </div>
     </div>
+    
 
     <div class="container">
 

@@ -4,6 +4,29 @@ html, body {
     margin: 0px;
 }
 
+:root {
+    --correct-colour: #538d4e;
+    --correct-letter-colour: white;
+    --incorrect-colour: #3a3a3c;
+    --incorrect-letter-colour: white;
+    --worng-spot-colour: #b59f3b;
+    --worng-spot-letter-colour: white;
+    
+    .contrast {
+        --correct-colour: #f5793a;
+        --worng-spot-colour: #85c0f9;
+        --correct-letter-colour: rgb(0, 0, 0);
+        --worng-spot-letter-colour: rgb(0, 0, 0);
+    }
+}
+
+.hideAnimations {
+    * {
+        transition: 0ms !important;
+        animation: 0 !important;
+    }
+}
+
 * {
     color: white
 }
@@ -57,20 +80,67 @@ footer {
 Settings popup
 */
 
-#customGameInputHolder {
+.settingsMenuBTN {
+    font-size: 20px;
+    background-color: var(--correct-colour);
+    width: fit-content;
+    padding: 3px;
+    cursor: pointer;
     display: flex;
+    align-items: center;
+    border-radius: 3px;
+    color: var(--correct-letter-colour);
+    user-select: none;
+    img {
+        height: 20px;
+    }
+}
+
+.contrast .settingsMenuBTN img {
+    filter: brightness(0);
+}
+
+#customGameCopy {
+    margin-left: auto;
+    
+}
+
+.subSetting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-height: 35px;
+    gap: 5px;
+    border: 1px solid #424244;
+    padding: 3px;
+}
+
+.settingSubOptionGroup {
+    font-size: 20px;
+    margin-top: 20px;
+    
+    display: flex;
+    flex-direction: column !important;
     gap: 5px;
 }
 
-#customGameCopy{
-    height: 23px;
-    cursor: pointer;
+.subSettingTitle {
+    font-size: 19px;
+    margin: 0px;
+    
+    color: #d6d6d6;
+}
+
+.flexRow {
+    display: flex;
+    gap: 5px;
 }
 
 #customGameInput {
     text-transform: uppercase;
     border: 2px solid #565758;
     min-width: 15ch;
+    max-height: 24px;
     outline: none;
 }
 
@@ -79,14 +149,15 @@ Settings popup
 }
 
 .settingOption {
-    margin-top: 20px;
+    border:2px solid #272727;
+    padding: 10px;
+    margin-top: 10px;
     font-size: 20px;
     display: flex;
     justify-content: space-between;
 }
 
 .slider {
-    
     width: 45px;
     height: 24px;
     border-radius: 25px;
@@ -106,7 +177,7 @@ Settings popup
 }
 
 .slider.active {
-    background-color: #538d4e;
+    background-color: var(--correct-colour);
     div {
         left: 23px;
     }
@@ -122,6 +193,24 @@ Settings popup
     .settingOption {
         font-size: 15px;
     }
+    .settingsMenuBTN {
+        font-size: 15px;
+        img {
+            size: 10px;
+        }
+    }
+    .slider {
+        width: 35px;
+        height: 19px;
+        div {
+            height: 15px;
+            width: 15px;
+        }
+    }
+    .slider.active div{
+        left: 18px;
+    }
+    
 }
 
 /* 
@@ -316,6 +405,8 @@ h3 {
     text-align: center;
     width: 15px;
     height: 15px;
+    min-width: 15px;
+    min-height: 15px;
     img {
         width: 15px;
     }
@@ -626,25 +717,25 @@ Guess Grid
 /* Colours for the guess in the guess grid */
 
 .correct {
-    color: white;
-    background-color: #538d4e;
-    border: 2px solid #538d4e;
+    color: var(--correct-letter-colour);
+    background-color: var(--correct-colour);
+    border-color: var(--correct-colour);
 }
 
 .incorrect {
-    color: white;
-    background-color: #3a3a3c;
-    border: 2px solid #3a3a3c;
+    color: var(--incorrect-letter-colour);
+    background-color: var(--incorrect-colour);
+    border-color: var(--incorrect-colour);
 }
 
 .wrong {
-    color: white;
-    background-color: #b59f3b;
-    border: 2px solid #b59f3b;
+    color: var(--worng-spot-letter-colour);
+    background-color: var(--worng-spot-colour);
+    border-color: var(--worng-spot-colour);
 }
 
 .hinted {
-    border: 2px solid #272727;
+    border-color: #272727;
 }
 
 /* 
@@ -666,7 +757,6 @@ Animations
 .showNavOption {
     animation: showNavButton 500ms forwards;
 }
-
 
 @keyframes letterAnimation {
     0% {
@@ -740,16 +830,16 @@ Animations
     0% {
         transform: translateY(0%);
     }
-    30% {
+    15% {
         transform: translateY(-30%);
     }
-    55% {
+    27% {
         transform: translateY(0%);
     }
-    60% {
+    37% {
         transform: translateY(-20%);
     }
-    65% {
+    44% {
         transform: translateY(-0%);
     }
 }

@@ -9,7 +9,9 @@ async function getDefinitionOfWord(word) {
     // sees if it is possible for the word to be stored localy (max length 21 letters)
     if (word.length <= 21) {
         try {
+
             // Each file is named with how many letters each word contains
+            // This is done to save memory whilst also having fast defining speeds
             const fileLocationOfLocalDefinition = `./definitions/${word.length}.js`
             const gatheredDefinitionsFromLocalFile = await import(fileLocationOfLocalDefinition);
 
@@ -62,6 +64,7 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const asearch = urlParams.get('a');
 
+// Put everything into a function to stop console injecting
 function runGame() {
 
     // decrypts the encryped text
@@ -127,8 +130,12 @@ function runGame() {
     const customGameCopyBTN = document.getElementById("customGameCopy")
     const customGameInput = document.getElementById("customGameInput")
 
+    let onScreenKeyInputsOnly = false;
+
     // Store if hint has been revield so the hint button doesn't dissapear when you get a hint
     let hasHintRevealed = false;
+
+    let showAnimations = 1;
 
     // Getting Navbar buttons
     const statisticsNavigationBarBTN = document.getElementById("statisticsBTN");
@@ -146,27 +153,57 @@ function runGame() {
     let disableGamePlay = false;
 
     // pickes a random word from the list of words found in the words.js file to be used as the correct word
-    const correctWord = (asearch && words.includes(decyptText(asearch)))? decyptText(asearch): words[Math.floor(Math.random() * words.length)]; 
+    const correctWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? decyptText(asearch).slice(0, -1): words[Math.floor(Math.random() * words.length)]; 
+
+    let areHintsAllowed = 1;
+    if (asearch && words.includes(decyptText(asearch).slice(0, -1))) {
+        areHintsAllowed = 0;
+        if (decyptText(asearch).charAt(decyptText(asearch).length - 1) == "a"){
+            areHintsAllowed = 1
+        }
+    }
 
     // Get the definition of the selected word
-    let correctWordDefinitions = "";
-    getDefinitionOfWord(correctWord).then(definitions => {
-        correctWordDefinitions = definitions;
+    let correctWordDefinitions = -1;
+    if (areHintsAllowed){
+        getDefinitionOfWord(correctWord).then(definitions => {
+            correctWordDefinitions = definitions;
 
-        // Show the hint button if there's an avalible definition
-        if (correctWordDefinitions !== -1) {
-            hintNavigationBarBTN.style.display = "flex"
-            hintNavigationBarBTN.classList.add("showNavOption")
-        }
-    })
+            // Show the hint button if there's an avalible definition
+            if (correctWordDefinitions !== -1) {
+                hintNavigationBarBTN.style.display = "flex"
+                hintNavigationBarBTN.classList.add("showNavOption")
+            }
+        })
+    }
 
     // adds functionality to toggle buttons
-    for (let toggleButton of document.getElementsByClassName("slider")) {
+    for (const toggleButton of document.getElementsByClassName("slider")) {
         toggleButton.addEventListener("click", ()=>{
             if (toggleButton.classList.contains("active")) {
                 toggleButton.classList.remove("active")
             } else {
                 toggleButton.classList.add("active")
+            }
+            const active = toggleButton.classList.contains("active")
+
+            if (toggleButton.id === "contrast") {
+                if (active) document.body.classList.add("contrast") 
+                else document.body.classList.remove("contrast")
+            }
+            else if (toggleButton.id === "keyoption") {
+                if (active) onScreenKeyInputsOnly = true
+                else onScreenKeyInputsOnly = false
+            }
+            else if (toggleButton.id === "showAnimations") {
+                if (active) {
+                    document.body.classList.remove("hideAnimations")
+                    showAnimations = true
+                }
+                else {
+                    document.body.classList.add("hideAnimations")
+                    showAnimations = false
+                }
             }
         })
     }
@@ -183,11 +220,6 @@ function runGame() {
 
     // What guess will get skiped to when getting a hint
     const hintRevealingSkipToGuessCost = guessesAllowed - 1;
-
-    // Sets the colours for the different types of guesses
-    const correctGuessColour = "rgb(83, 141, 78)";
-    const wrongSpotGuessColour = "rgb(181, 159, 59)";
-    const incorrectGuessColour = "rgb(58, 58, 60)";
 
     // Adds logic to the keys so they can be clicked
     for (key of document.getElementsByClassName("key")) {
@@ -216,11 +248,10 @@ function runGame() {
     function openSettingsPopup() {
         disableGamePlay = true;
         settingsPopup.style.display = "block";
-        setTimeout(() => {
-            settingsPopup.style.opacity = 1;
-            settingsPopup.style.transform = "translate(-50%, -50%)";
-            settingsBackground.style.display = "block";
-        }, 10)
+        settingsPopup.offsetWidth
+        settingsPopup.style.opacity = 1;
+        settingsPopup.style.transform = "translate(-50%, -50%)";
+        settingsBackground.style.display = "block";
     }
 
     // Closes the settings popup when ran
@@ -231,18 +262,17 @@ function runGame() {
         setTimeout(() => {
             settingsPopup.style.display = "none";
             settingsBackground.style.display = "none";
-        }, 200)
+        }, 200 * showAnimations)
     }
 
     // Opens the hint popup when ran
     function openHintPopup() {
         disableGamePlay = true;
         hintPopup.style.display = "block";
-        setTimeout(() => {
-            hintPopup.style.opacity = 1;
-            hintPopup.style.transform = "translate(-50%, -50%)";
-            hintBackground.style.display = "block";
-        }, 10)
+        hintPopup.offsetWidth
+        hintPopup.style.opacity = 1;
+        hintPopup.style.transform = "translate(-50%, -50%)";
+        hintBackground.style.display = "block";
     }
 
     // Closes the hint popup when ran
@@ -253,18 +283,17 @@ function runGame() {
         setTimeout(() => {
             hintPopup.style.display = "none";
             hintBackground.style.display = "none";
-        }, 200)
+        }, 200 * showAnimations)
     }
 
     // Opens the how to play popup when ran
     function openHowToPlayPopup() {
         disableGamePlay = true;
         howToPlayPopup.style.display = "block";
-        setTimeout(() => {
-            howToPlayPopup.style.opacity = 1;
-            howToPlayPopup.style.transform = "translate(-50%, -50%)";
-            howToPlayBackground.style.display = "block";
-        }, 10)
+        howToPlayPopup.offsetWidth
+        howToPlayPopup.style.opacity = 1;
+        howToPlayPopup.style.transform = "translate(-50%, -50%)";
+        howToPlayBackground.style.display = "block";
 
         // Animates the tiles in the help menu to gradully reviel like the accual game
         let helpExampleTilePassedAmount = 0;
@@ -282,7 +311,7 @@ function runGame() {
                 if (helpExampleTile.classList.contains("correctHelp")) helpExampleTile.classList.add("correct");
                 if (helpExampleTile.classList.contains("wrongHelp")) helpExampleTile.classList.add("wrong");
                 if (helpExampleTile.classList.contains("incorrectHelp")) helpExampleTile.classList.add("incorrect");
-            }, helpExampleTilePassedAmount*wordCheckAnimationIntervalMS + 250)
+            }, ((helpExampleTilePassedAmount*wordCheckAnimationIntervalMS)/4 + 125) * showAnimations)
             helpExampleTilePassedAmount ++;
         }
     }
@@ -295,17 +324,16 @@ function runGame() {
         setTimeout(() => {
             howToPlayPopup.style.display = "none";
             howToPlayBackground.style.display = "none";
-        }, 200)
+        }, 200 * showAnimations)
     }
 
     // Opens the statistics popup when ran
     function openStatisticsMenu() {
         disableGamePlay = true;
         statisticsMenu.style.display = "flex";
-        setTimeout(() => {
-            statisticsMenu.style.opacity = 1;
-            statisticsMenu.style.transform = "translateY(0%)";
-        }, 10)
+        statisticsMenu.offsetWidth
+        statisticsMenu.style.opacity = 1;
+        statisticsMenu.style.transform = "translateY(0%)";
         
     }
 
@@ -316,19 +344,23 @@ function runGame() {
         statisticsMenu.style.opacity = 0;
         setTimeout(() => {
             statisticsMenu.style.display = "none";
-        }, 200)
+        }, 200 * showAnimations)
     }
 
     function copyCustomWordLink(word) {
         word = word.toLowerCase()
+        const allowHindTurnedOn = document.getElementById("enableHints").classList.contains("active")
+
         if (words.includes(word)) {
-            navigator.clipboard.writeText(`vertmit.github.io/dictionle?a=${encyptText(word)}`)
+            navigator.clipboard.writeText(`vertmit.github.io/dictionle?a=${encyptText(`${word}${(allowHindTurnedOn)? "a": "b"}`)}`)
             addNotification("Copied!", notificationTimeOutMS)
         } else {
             customGameInput.classList.remove("invalid")
-            setTimeout(()=>{
-                customGameInput.classList.add("invalid")
-            }, 10)
+
+            // forces a reflow to replay the animation
+            customGameInput.offsetWidth
+
+            customGameInput.classList.add("invalid")
             customGameInput.style.border = "2px solid rgb(155, 40, 40)"
             addNotification("Word Not Vaild", notificationTimeOutMS)
         }
@@ -411,7 +443,7 @@ function runGame() {
                         currentLetterToBeChanged.textContent = ""
                         currentLetterToBeChanged.classList.add("popinout")
                         currentLetterToBeChanged.classList.add("hinted")
-                    }, (i + e)*100)
+                    }, (i + e)*100 * showAnimations)
                     
                 }
             }
@@ -424,8 +456,6 @@ function runGame() {
             hintPopup.appendChild(hintText)
         }
     })
-
-    
 
     howToPlayNavigationBarBTN.addEventListener("click", ()=>{
         openHowToPlayPopup();
@@ -507,7 +537,7 @@ function runGame() {
 
             const distributionBar = document.createElement("div");
             distributionBar.className = "guessDistributionBar";
-            distributionBar.style.width = `calc(10px + ${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}%)`;
+            distributionBar.style.width = `calc(${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}% + 8px)`;
             distributionBar.textContent = guessDistributionNumbers[i];
             
             guessDistributionBox.appendChild(distributionBar);
@@ -558,8 +588,6 @@ function runGame() {
             const currentGuessAmountAsOfFunctionCalled = currentGuessAmount;
             const currentGuessAsOfFunctionCalled = usersCurrentGuess;
 
-            
-
             if (letter === "Backspace") {
 
                 // removes the last letter from the guess
@@ -599,7 +627,7 @@ function runGame() {
 
                                 // adds the popinout class to the letter spot so the animation plays
                                 letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                            }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                            }, wordCheckAnimationIntervalMS * letterIndexOfGuess * showAnimations);
                         }
                     }
 
@@ -623,7 +651,7 @@ function runGame() {
                     
                                     // adds the popinout class to the letter spot so the animation plays
                                     letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                                }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                                }, wordCheckAnimationIntervalMS * letterIndexOfGuess * showAnimations);
                             }
                             else if (processingWord[letterIndexOfGuess] !== "correct") {
                                 // marks the letter as not in the word
@@ -639,7 +667,7 @@ function runGame() {
                     
                                     // adds the popinout class to the letter spot so the animation plays
                                     letterPlacesInsideGride[letterIndexOfGuess + currentGuessAmountAsOfFunctionCalled * correctWordLength].classList.add("popinout");
-                                }, wordCheckAnimationIntervalMS * letterIndexOfGuess);
+                                }, wordCheckAnimationIntervalMS * letterIndexOfGuess * showAnimations);
                             }
                         }
                     }
@@ -653,27 +681,24 @@ function runGame() {
 
                             // changes the key to green if the letter is maked as correct
                             if (processingGuess[letter] === "correct") {
-                                key.style.backgroundColor = correctGuessColour;
+                                key.classList.add("correct");
                             }
 
                             // changes the key to orange if the letter is maked as in the wrong spot
                             else if (processingGuess[letter] === "wrong spot") {
 
                                 // sees if the key is already green so it doesn't change it
-                                if ( key.style.backgroundColor !== correctGuessColour) key.style.backgroundColor = wrongSpotGuessColour;
+                                if (!key.classList.contains("correct")) key.classList.add("wrong");
                             } 
 
                             // changes the key to grey if the letter is maked as in the incorrect
                             else {
-                                if ( key.style.backgroundColor !== correctGuessColour && key.style.backgroundColor !== wrongSpotGuessColour)key.style.backgroundColor = incorrectGuessColour;
+                                if ( !key.classList.contains("correct") && !key.classList.contains("wrong")) key.classList.add("incorrect");
                             }
                         }
-                    }, wordCheckAnimationIntervalMS * correctWordLength);
+                    }, wordCheckAnimationIntervalMS * correctWordLength * showAnimations);
                     
-                    if (currentGuessAmount > guessesAllowed - hintRevealingSkipToGuessCost - 1 && !hasHintRevealed) {
-                        hintNavigationBarBTN.classList.remove("showNavOption")
-                        hintNavigationBarBTN.classList.add("hideNavOption")
-                    }
+                    
 
                     if (correctWord === usersCurrentGuess) {
                         gameEnded = true;
@@ -701,12 +726,16 @@ function runGame() {
                             setTimeout(() => {
                                 openStatisticsMenu()
                             }, 2000)
-                        }, wordCheckAnimationIntervalMS * correctWordLength);
+                        }, wordCheckAnimationIntervalMS * correctWordLength * showAnimations);
                     }
                     else {
 
                         // Increments the current guess amount so the next row can be used
                         currentGuessAmount ++;
+
+                        if (currentGuessAmount > hintRevealingSkipToGuessCost - 1) {
+                            hintNavigationBarBTN.style.animation = "bouncingNavButton 2s infinite"
+                        }
                         
                         // Resets the users guess so the user doesn't have to manualy clear the row
                         usersCurrentGuess = "";
@@ -725,7 +754,7 @@ function runGame() {
                                 setTimeout(() => {
                                     openStatisticsMenu()
                                 }, 2000)
-                            }, wordCheckAnimationIntervalMS * correctWordLength)
+                            }, wordCheckAnimationIntervalMS * correctWordLength * showAnimations)
                         }
                     }
                     
@@ -794,6 +823,7 @@ function runGame() {
 
     // checks for key presses to add or subtract from the guess
     window.addEventListener("keydown", (event) => {
+        if (!onScreenKeyInputsOnly)
         keyDownProsses(event.key);
     });
 }
