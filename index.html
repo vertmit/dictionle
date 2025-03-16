@@ -115,6 +115,17 @@
         
         <h1 class="popupTitle">Settings</h1>
         
+        <div class="settingOption settingSubOptionGroup">
+            Game Difficulty
+            <div class="subSetting">
+                <p class="subSettingTitle">Normal</p>
+                <div class="radio difficultyRadioGroup active" id="normalMode"></div>
+            </div>
+            <div class="subSetting">
+                <p class="subSettingTitle">Impossible</p>
+                <div class="radio difficultyRadioGroup" id="impossibleMode"></div>
+            </div>
+        </div>
         
         <div class="settingOption">
             High Contrast Mode
@@ -146,11 +157,11 @@
         </div>
     </div>
     
-
+    <div id="notificationHolder"></div>
     <div class="container">
 
         <!-- Initializes a places for all the incomming notifications to go -->
-        <div id="notificationHolder"></div>
+        
         <div id="wordHolder"></div>
 
         <!-- Initializes keyboard display -->

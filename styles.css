@@ -80,6 +80,22 @@ footer {
 Settings popup
 */
 
+.radio {
+    transition: background-color 250ms;
+    width: 20px;
+    height: 20px;
+    border-radius: 25px;
+    background-color: #565758;
+    border: 2px solid #ffffff;
+    position: relative;
+    cursor: pointer;
+}
+
+.radio.active {
+    transition: background-color 125ms;
+    background-color: var(--correct-colour);
+}
+
 .settingsMenuBTN {
     font-size: 20px;
     background-color: var(--correct-colour);
@@ -207,10 +223,16 @@ Settings popup
             width: 15px;
         }
     }
+    .subSettingTitle {
+        font-size: 12px;
+    }
     .slider.active div{
         left: 18px;
     }
-    
+    .radio {
+        height: 15px;
+        width: 15px;
+    }
 }
 
 /* 

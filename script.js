@@ -96,6 +96,50 @@ function runGame() {
         return encrypedString
     }
 
+    function saveSettings() {
+        
+        localStorage.setItem("settings", JSON.stringify({
+            "contrast":document.body.classList.contains("contrast"),
+            "onScreenKeysOnly": onScreenKeyInputsOnly,
+            "showAnimations": showAnimations,
+            "difficulty": selectedDifficulty,
+        }))
+    }
+
+    function loadSettings() {
+        const settingsToLoad = JSON.parse(localStorage.getItem("settings"))
+
+        if (settingsToLoad) {
+            if (settingsToLoad.contrast) {
+                document.body.classList.add("contrast")
+                document.getElementById("contrast").classList.add("active")
+            }
+            if (settingsToLoad.onScreenKeysOnly) {
+                onScreenKeyInputsOnly = true
+                document.getElementById("keyoption").classList.add("active")
+            }
+
+            if (!settingsToLoad.showAnimations) {
+                showAnimations = false
+                document.body.classList.add("hideAnimations")
+                document.getElementById("showAnimations").classList.remove("active")
+            }
+            selectedDifficulty = settingsToLoad.difficulty
+            document.getElementById(`normalMode`).classList.remove("active")
+            document.getElementById(`${selectedDifficulty}Mode`).classList.add("active")
+        }
+    }
+
+    let selectedDifficulty = "normal"
+
+    loadSettings()
+
+    // pickes a random word from the list of words found in the words.js file to be used as the correct word
+    let correctWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? decyptText(asearch).slice(0, -1): words[Math.floor(Math.random() * words.length)]; 
+    const isCustomWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? true: false;
+
+    const playingDifficulty = (isCustomWord)? "normal": selectedDifficulty
+
     const notificationHolder = document.getElementById("notificationHolder");
     const wordHolder = document.getElementById("wordHolder");
 
@@ -152,8 +196,7 @@ function runGame() {
     // Disables the game, use cases like opening menu so background presses
     let disableGamePlay = false;
 
-    // pickes a random word from the list of words found in the words.js file to be used as the correct word
-    const correctWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? decyptText(asearch).slice(0, -1): words[Math.floor(Math.random() * words.length)]; 
+
 
     let areHintsAllowed = 1;
     if (asearch && words.includes(decyptText(asearch).slice(0, -1))) {
@@ -165,7 +208,7 @@ function runGame() {
 
     // Get the definition of the selected word
     let correctWordDefinitions = -1;
-    if (areHintsAllowed){
+    if (areHintsAllowed && playingDifficulty != "impossible"){
         getDefinitionOfWord(correctWord).then(definitions => {
             correctWordDefinitions = definitions;
 
@@ -174,6 +217,22 @@ function runGame() {
                 hintNavigationBarBTN.style.display = "flex"
                 hintNavigationBarBTN.classList.add("showNavOption")
             }
+        })
+    }
+
+    for (const radioButton of document.getElementsByClassName("radio")) {
+        radioButton.addEventListener("click", ()=>{
+            const radiosInSameGroup = document.getElementsByClassName(String(radioButton.classList).replace("radio", ""))
+            for (const radioInGroup of radiosInSameGroup) {
+                radioInGroup.classList.remove("active")
+            }
+            radioButton.classList.add("active")
+            if (radioButton.classList.contains("difficultyRadioGroup")) {
+                const previousDifficulty = selectedDifficulty
+                selectedDifficulty = radioButton.id.replace("Mode", "")
+                if (previousDifficulty != selectedDifficulty) addNotification(`The difficulty will change to ${selectedDifficulty} when you refresh`, notificationTimeOutMS)
+            }
+            saveSettings()
         })
     }
 
@@ -205,7 +264,16 @@ function runGame() {
                     showAnimations = false
                 }
             }
+            saveSettings()
         })
+    }
+
+    
+    
+    let impossibleModeCharateristics = {
+        "incorrect":[],
+        "wrongSpot":{},
+        "correct":{}
     }
 
     // Sets a time in MS for how long the notification will be displayed for
@@ -599,7 +667,90 @@ function runGame() {
 
                 // Sees if the word is valid
                 if (!wordStatus) {
+                    if (playingDifficulty == "impossible") {
+                        let furtherestWord = ""
+                        let furtherestDistance = -1
+                        
+                        for (const word of words) {
 
+                            let wordVaild = true
+                            let index = 0;
+                            for (let letter of word) {
+                                if (impossibleModeCharateristics.incorrect.includes(letter)) {
+                                    wordVaild = false
+                                    break
+                                }
+                                if (Object.keys(impossibleModeCharateristics.wrongSpot).includes(letter)) {
+                                    if (impossibleModeCharateristics.wrongSpot[letter].includes(index)) {
+                                        wordVaild = false
+                                        break
+                                    }
+                                }
+                                if (Object.keys(impossibleModeCharateristics.correct).includes(index)) {
+                                    if (impossibleModeCharateristics.correct[index] != letter) {
+                                        wordVaild = false
+                                        break
+                                    }
+                                }
+                                index++
+                            }
+
+                            if (word.length == correctWordLength && wordVaild) {
+                                let wordDistance = 0;
+                                let processingGuess = usersCurrentGuess.split('');
+                                let processingWord = word.split('');
+                                for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+                                    if (processingGuess[letterIndexOfGuess] == processingWord[letterIndexOfGuess]) {
+                                        processingGuess[letterIndexOfGuess] = "="
+                                        processingWord[letterIndexOfGuess] = "+"
+                                        wordDistance += 2;
+                                    }
+                                }
+
+                                for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+                                    if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
+                                        let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
+                                        processingGuess[index] = "="
+                                        processingWord[letterIndexOfGuess] = "+"
+                                        wordDistance += 1;
+                                    }
+                                }
+                                if (wordDistance == 0){
+                                    furtherestWord = word;
+                                    break
+                                }
+                                if (furtherestWord == "" || wordDistance < furtherestDistance) {
+                                    furtherestWord = word
+                                    furtherestDistance = wordDistance
+                                }
+                            }
+                        }
+                        correctWord = furtherestWord;
+
+                        let processingGuess = usersCurrentGuess.split('');
+                        let processingWord = correctWord.split('');
+
+                        for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+                            if (processingGuess[letterIndexOfGuess] == processingWord[letterIndexOfGuess]) {
+                                impossibleModeCharateristics.correct[letterIndexOfGuess] = processingGuess[letterIndexOfGuess]
+                                processingGuess[letterIndexOfGuess] = "+"
+                                processingWord[letterIndexOfGuess] = "="
+                            }
+                        }
+                        for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+                            if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
+                                let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
+                                if (!impossibleModeCharateristics.wrongSpot[letterIndexOfGuess]) impossibleModeCharateristics.wrongSpot[letterIndexOfGuess] = []
+                                impossibleModeCharateristics.wrongSpot[letterIndexOfGuess].push(index)
+                                processingGuess[letterIndexOfGuess] = "+"
+                                processingWord[index] = "="
+                            } else {
+                                if (!Object.keys(impossibleModeCharateristics.wrongSpot).includes(processingGuess[letterIndexOfGuess])) {
+                                    impossibleModeCharateristics.incorrect.push(processingGuess[letterIndexOfGuess])
+                                }
+                            }
+                        }
+                    }
                     // Splits the guesses from strings to lists so the specific letters can be changed
                     let processingGuess = usersCurrentGuess.split('');
                     let processingWord = correctWord.split('');
