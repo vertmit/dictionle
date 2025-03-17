@@ -109,7 +109,7 @@ function runGame() {
 
     let showAnimations = 1;
     let onScreenKeyInputsOnly = false;
-    
+
     function loadSettings() {
         const settingsToLoad = JSON.parse(localStorage.getItem("settings"))
 
@@ -986,8 +986,7 @@ function runGame() {
 
     // checks for key presses to add or subtract from the guess
     window.addEventListener("keydown", (event) => {
-        if (!onScreenKeyInputsOnly)
-        keyDownProsses(event.key);
+        if (!onScreenKeyInputsOnly) keyDownProsses(event.key);
     });
 }
 
