@@ -568,61 +568,65 @@ function runGame() {
     }) 
 
     function updateStatistics() {
-        localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
+        try {
+            localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
 
-        document.getElementById("statsMarker").textContent = `${selectStatsTab} mode statistics`.toUpperCase()
+            document.getElementById("statsMarker").textContent = `${selectStatsTab} mode statistics`.toUpperCase()
 
-        let guessDistributionNumbers = [];
+            let guessDistributionNumbers = [];
 
-        while (guessDistributionHolder.firstChild) {
-            guessDistributionHolder.firstChild.remove();
-        }
-
-        const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
-
-        for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1 + (selectStatsTab == "normal")? 1: 0; i++ ) {
-            if (i === guessesAllowed + 1 && selectStatsTab == "normal") i = "hinted"
-            if (i in guessdistribution[selectStatsTab]) {
-                
-                guessDistributionNumbers.push(guessdistribution[selectStatsTab][i]);
-            } else {
-                guessDistributionNumbers.push(0)
+            while (guessDistributionHolder.firstChild) {
+                guessDistributionHolder.firstChild.remove();
             }
-        }
 
-        
-        const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
+            const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
 
-        statisticsNumberGamesPlayed.textContent = statisticNumbers[selectStatsTab].played;
-        statisticsNumberWinPercent.textContent = (statisticNumbers[selectStatsTab].played !== 0)? Math.round(statisticNumbers[selectStatsTab].wins / statisticNumbers[selectStatsTab].played * 100): 0;
-        statisticsNumberCurrentStreak.textContent = statisticNumbers[selectStatsTab].streak;
-        
-        statisticsNumberMaxStreak.textContent = statisticNumbers[selectStatsTab].maxStreak;
-
-        for (let i = 0; i < guessDistributionNumbers.length; i ++) {
-
-            const guessDistributionBox = document.createElement("div");
-            guessDistributionBox.className = "guessDistributionBox";
-
-            const indexNumberOfGuess = document.createElement("div");
-            
-            if (i == guessDistributionNumbers.length -1 && selectStatsTab == "normal") {
-                
-                const hintedBarIndicator = document.createElement("img")
-                hintedBarIndicator.src = "images/lightbulb.png"
-                indexNumberOfGuess.appendChild(hintedBarIndicator)
+            for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1 + (selectStatsTab == "normal")? 1: 0; i++ ) {
+                if (i === guessesAllowed + 1 && selectStatsTab == "normal") i = "hinted"
+                if (i in guessdistribution[selectStatsTab]) {
+                    
+                    guessDistributionNumbers.push(guessdistribution[selectStatsTab][i]);
+                } else {
+                    guessDistributionNumbers.push(0)
+                }
             }
-            else indexNumberOfGuess.textContent = i + 1;
-            indexNumberOfGuess.className = "guessDistributionIndex";
-            guessDistributionBox.appendChild(indexNumberOfGuess)
 
-            const distributionBar = document.createElement("div");
-            distributionBar.className = "guessDistributionBar";
-            distributionBar.style.width = `calc(${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}% + 8px)`;
-            distributionBar.textContent = guessDistributionNumbers[i];
             
-            guessDistributionBox.appendChild(distributionBar);
-            guessDistributionHolder.appendChild(guessDistributionBox);
+            const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
+
+            statisticsNumberGamesPlayed.textContent = statisticNumbers[selectStatsTab].played;
+            statisticsNumberWinPercent.textContent = (statisticNumbers[selectStatsTab].played !== 0)? Math.round(statisticNumbers[selectStatsTab].wins / statisticNumbers[selectStatsTab].played * 100): 0;
+            statisticsNumberCurrentStreak.textContent = statisticNumbers[selectStatsTab].streak;
+            
+            statisticsNumberMaxStreak.textContent = statisticNumbers[selectStatsTab].maxStreak;
+
+            for (let i = 0; i < guessDistributionNumbers.length; i ++) {
+
+                const guessDistributionBox = document.createElement("div");
+                guessDistributionBox.className = "guessDistributionBox";
+
+                const indexNumberOfGuess = document.createElement("div");
+                
+                if (i == guessDistributionNumbers.length -1 && selectStatsTab == "normal") {
+                    
+                    const hintedBarIndicator = document.createElement("img")
+                    hintedBarIndicator.src = "images/lightbulb.png"
+                    indexNumberOfGuess.appendChild(hintedBarIndicator)
+                }
+                else indexNumberOfGuess.textContent = i + 1;
+                indexNumberOfGuess.className = "guessDistributionIndex";
+                guessDistributionBox.appendChild(indexNumberOfGuess)
+
+                const distributionBar = document.createElement("div");
+                distributionBar.className = "guessDistributionBar";
+                distributionBar.style.width = `calc(${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}% + 8px)`;
+                distributionBar.textContent = guessDistributionNumbers[i];
+                
+                guessDistributionBox.appendChild(distributionBar);
+                guessDistributionHolder.appendChild(guessDistributionBox);
+            }   
+        } catch {
+            console.log("An error occured while loading Satistics")
         }
     }
 
