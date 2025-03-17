@@ -106,6 +106,10 @@ function runGame() {
         }))
     }
 
+
+    let showAnimations = 1;
+    let onScreenKeyInputsOnly = false;
+    
     function loadSettings() {
         const settingsToLoad = JSON.parse(localStorage.getItem("settings"))
 
@@ -139,6 +143,8 @@ function runGame() {
     const isCustomWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? true: false;
 
     const playingDifficulty = (isCustomWord)? "normal": selectedDifficulty
+
+    let selectStatsTab = playingDifficulty
 
     const notificationHolder = document.getElementById("notificationHolder");
     const wordHolder = document.getElementById("wordHolder");
@@ -174,12 +180,10 @@ function runGame() {
     const customGameCopyBTN = document.getElementById("customGameCopy")
     const customGameInput = document.getElementById("customGameInput")
 
-    let onScreenKeyInputsOnly = false;
-
     // Store if hint has been revield so the hint button doesn't dissapear when you get a hint
     let hasHintRevealed = false;
 
-    let showAnimations = 1;
+    
 
     // Getting Navbar buttons
     const statisticsNavigationBarBTN = document.getElementById("statisticsBTN");
@@ -195,8 +199,6 @@ function runGame() {
 
     // Disables the game, use cases like opening menu so background presses
     let disableGamePlay = false;
-
-
 
     let areHintsAllowed = 1;
     if (asearch && words.includes(decyptText(asearch).slice(0, -1))) {
@@ -268,8 +270,7 @@ function runGame() {
         })
     }
 
-    
-    
+
     let impossibleModeCharateristics = {
         "incorrect":[],
         "wrongSpot":{},
@@ -312,6 +313,12 @@ function runGame() {
         wordHolder.appendChild(wordRow);
     }
 
+    for (const tabSelect of document.getElementsByClassName("tabSelect")) {
+        tabSelect.addEventListener("click", ()=>{
+            selectStatsTab = tabSelect.textContent.toLowerCase()
+            updateStatistics()
+        })
+    }
     // Opens the settings popup when ran
     function openSettingsPopup() {
         disableGamePlay = true;
@@ -481,6 +488,7 @@ function runGame() {
     getHintBTN.addEventListener("click", ()=>{
         getHintBTN.remove();
         if (correctWordDefinitions !== -1) {
+            hintNavigationBarBTN.style.animation = ""
             const hintBox = document.createElement("div");
             hintBox.classList.add("hintBox")
 
@@ -538,8 +546,11 @@ function runGame() {
     })
 
     const stats = JSON.parse(localStorage.getItem("statistics"))
-    let guessdistribution = {};
-    let statisticNumbers = {"played": 0, "wins":0, "streak":0, "maxStreak":0};
+    let guessdistribution = {"normal":{}, "hard":{}, "impossible":{}};
+    let statisticNumbers = {"normal":{"played": 0, "wins":0, "streak":0, "maxStreak":0},
+                            "hard":{"played": 0, "wins":0, "streak":0, "maxStreak":0},
+                            "impossible":{"played": 0, "wins":0, "streak":0, "maxStreak":0}
+                        };
     if (stats) {
         guessdistribution = stats.distribution;
         statisticNumbers = stats.numbers;
@@ -559,19 +570,21 @@ function runGame() {
     function updateStatistics() {
         localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
 
+        document.getElementById("statsMarker").textContent = `${selectStatsTab} mode statistics`.toUpperCase()
+
         let guessDistributionNumbers = [];
 
         while (guessDistributionHolder.firstChild) {
             guessDistributionHolder.firstChild.remove();
         }
 
-        const maxGuess = (Object.keys(guessdistribution).length > 0)? (Object.keys(guessdistribution).slice(-1) == "hinted")? Object.keys(guessdistribution).slice(-2)[0]: Object.keys(guessdistribution).slice(-1): 0;
+        const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
 
-        for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+2; i++ ) {
-            if (i === guessesAllowed + 1) i = "hinted"
-            if (i in guessdistribution) {
+        for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1 + (selectStatsTab == "normal")? 1: 0; i++ ) {
+            if (i === guessesAllowed + 1 && selectStatsTab == "normal") i = "hinted"
+            if (i in guessdistribution[selectStatsTab]) {
                 
-                guessDistributionNumbers.push(guessdistribution[i]);
+                guessDistributionNumbers.push(guessdistribution[selectStatsTab][i]);
             } else {
                 guessDistributionNumbers.push(0)
             }
@@ -580,11 +593,11 @@ function runGame() {
         
         const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
 
-        statisticsNumberGamesPlayed.textContent = statisticNumbers.played;
-        statisticsNumberWinPercent.textContent = (statisticNumbers.played !== 0)? Math.round(statisticNumbers.wins / statisticNumbers.played * 100): 0;
-        statisticsNumberCurrentStreak.textContent = statisticNumbers.streak;
+        statisticsNumberGamesPlayed.textContent = statisticNumbers[selectStatsTab].played;
+        statisticsNumberWinPercent.textContent = (statisticNumbers[selectStatsTab].played !== 0)? Math.round(statisticNumbers[selectStatsTab].wins / statisticNumbers[selectStatsTab].played * 100): 0;
+        statisticsNumberCurrentStreak.textContent = statisticNumbers[selectStatsTab].streak;
         
-        statisticsNumberMaxStreak.textContent = statisticNumbers.maxStreak;
+        statisticsNumberMaxStreak.textContent = statisticNumbers[selectStatsTab].maxStreak;
 
         for (let i = 0; i < guessDistributionNumbers.length; i ++) {
 
@@ -593,7 +606,7 @@ function runGame() {
 
             const indexNumberOfGuess = document.createElement("div");
             
-            if (i == guessDistributionNumbers.length -1) {
+            if (i == guessDistributionNumbers.length -1 && selectStatsTab == "normal") {
                 
                 const hintedBarIndicator = document.createElement("img")
                 hintedBarIndicator.src = "images/lightbulb.png"
@@ -668,7 +681,7 @@ function runGame() {
                 // Sees if the word is valid
                 if (!wordStatus) {
                     if (playingDifficulty == "impossible") {
-                        let furtherestWord = ""
+                        let furtherestWords = []
                         let furtherestDistance = -1
                         
                         for (const word of words) {
@@ -715,17 +728,16 @@ function runGame() {
                                         wordDistance += 1;
                                     }
                                 }
-                                if (wordDistance == 0){
-                                    furtherestWord = word;
-                                    break
-                                }
-                                if (furtherestWord == "" || wordDistance < furtherestDistance) {
-                                    furtherestWord = word
+                                if (furtherestDistance === -1 || wordDistance < furtherestDistance) {
+                                    furtherestWords = [word]
                                     furtherestDistance = wordDistance
+                                } else if (wordDistance == furtherestDistance) {
+                                    furtherestWords.push(word)
                                 }
                             }
                         }
-                        correctWord = furtherestWord;
+
+                        correctWord = furtherestWords[Math.floor(Math.random()*furtherestWords.length)];
 
                         let processingGuess = usersCurrentGuess.split('');
                         let processingWord = correctWord.split('');
@@ -855,12 +867,12 @@ function runGame() {
                         gameEnded = true;
                         if (!asearch) {
                             const guessIndexInStatistics = (!hasHintRevealed)? currentGuessAmount+1: "hinted";
-                            if (!(guessIndexInStatistics in guessdistribution)) guessdistribution[guessIndexInStatistics] = 0;
-                            guessdistribution[guessIndexInStatistics] ++;
-                            statisticNumbers.played ++;
-                            statisticNumbers.wins ++;
-                            statisticNumbers.streak ++;
-                            if (statisticNumbers.streak > statisticNumbers.maxStreak) statisticNumbers.maxStreak = statisticNumbers.streak
+                            if (!(guessIndexInStatistics in guessdistribution[playingDifficulty])) guessdistribution[playingDifficulty][guessIndexInStatistics] = 0;
+                            guessdistribution[playingDifficulty][guessIndexInStatistics] ++;
+                            statisticNumbers[playingDifficulty].played ++;
+                            statisticNumbers[playingDifficulty].wins ++;
+                            statisticNumbers[playingDifficulty].streak ++;
+                            if (statisticNumbers[playingDifficulty].streak > statisticNumbers[playingDifficulty].maxStreak) statisticNumbers[playingDifficulty].maxStreak = statisticNumbers[playingDifficulty].streak
                         }
                         updateStatistics()
                         setTimeout(() => {
@@ -884,7 +896,7 @@ function runGame() {
                         // Increments the current guess amount so the next row can be used
                         currentGuessAmount ++;
 
-                        if (currentGuessAmount > hintRevealingSkipToGuessCost - 1) {
+                        if (currentGuessAmount > hintRevealingSkipToGuessCost - 1 && !hasHintRevealed) {
                             hintNavigationBarBTN.style.animation = "bouncingNavButton 2s infinite"
                         }
                         

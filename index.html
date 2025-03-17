@@ -24,7 +24,7 @@
             <img src="images/leaderboard.png" alt="">
         </div>
         <div class="navOption" id="hintBTN" style="display: none;">
-            <img src="images/lightbulb.png" alt="">
+            <img src="images/lightbulb.png" id="hintBTNIMG" alt="">
         </div>
     </div>
     <div id="stats" style="opacity: 0; display: none; transform: translateY(5%);">
@@ -33,6 +33,14 @@
                 <h1>Statistics</h1>
                 <img id="statsClose" class="close" src="images/close.png">
             </div>
+
+            <div class="row">
+                <div class="tabSelect">Normal</div>
+                
+                <div class="tabSelect">Impossible</div>
+            </div>
+
+            <h2 id="statsMarker"></h2>
             <div class="row">
                 <div class="stat">
                     <h1 class="statNum" id="gamesPlayed">0</h1>
@@ -121,8 +129,12 @@
                 <p class="subSettingTitle">Normal</p>
                 <div class="radio difficultyRadioGroup active" id="normalMode"></div>
             </div>
+            
             <div class="subSetting">
-                <p class="subSettingTitle">Impossible</p>
+                <div>
+                    <p class="subSettingTitle">Impossible</p>
+                    <p class="settingInfo">Good luck</p>
+                </div>
                 <div class="radio difficultyRadioGroup" id="impossibleMode"></div>
             </div>
         </div>

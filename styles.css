@@ -80,6 +80,12 @@ footer {
 Settings popup
 */
 
+.settingInfo {
+    color: #dbdbdf;
+    font-size: 11px;
+    margin: 0px;
+}
+
 .radio {
     transition: background-color 250ms;
     width: 20px;
@@ -125,7 +131,7 @@ Settings popup
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-height: 35px;
+
     gap: 5px;
     border: 1px solid #424244;
     padding: 3px;
@@ -325,7 +331,7 @@ li {
 
 .popupBg {
     z-index: 2;
-    filter: blur();
+    backdrop-filter: blur(2px);
     position: fixed;
     top: 0px;
     right: 0px;
@@ -372,6 +378,23 @@ h2 {
 /* 
 stats tab 
 */
+
+.tabSelect {
+    margin-top: 10px;
+    border: 1px solid rgb(143, 143, 143);
+    cursor: pointer;
+    user-select: none;
+}
+
+#statsMarker {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+.tabSelect.active {
+    background-color: #363636;
+    border: 1px solid rgb(201, 201, 201);
+}
 
 .menuTitle {
     display: flex;
@@ -849,6 +872,19 @@ Animations
 }
 
 @keyframes bouncingNavButton {
+	0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+	40% {
+    transform: translateY(-20px);
+  }
+	60% {
+    transform: translateY(-15px);
+  }
+}
+
+/* @keyframes bouncingNavButton {
     0% {
         transform: translateY(0%);
     }
@@ -864,4 +900,4 @@ Animations
     44% {
         transform: translateY(-0%);
     }
-}
+} */
