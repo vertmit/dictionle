@@ -74,27 +74,51 @@ function runGame() {
         }
         Math.seedrandom(text.length/3);
 
+        let randomNumbers = []
+
+        for (let i = 0; i < text.length; i++) {
+            randomNumbers.push(Math.floor(Math.random()*10))
+            randomNumbers.push(Math.floor(Math.random()*27))
+        }
+
+        let index = 0;
+
         let decrypedString = ""
         for (let char = 0; char < text.length; char += 3) {
-            decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/Math.round(Math.random()*38)+96)}`
+            // decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/randomNumbers[index]+96-randomNumbers[index+1])}`
+            decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/randomNumbers[index+1]-randomNumbers[index]+96)}`
+            index += 2;
         }
         Math.seedrandom(Date.now())
         return decrypedString 
     }
 
     // Encrypes text in to 3 digit numbers per letter
-    function encyptText(text) {
+    function encryptText(text) {
 
         // Sets the random see to length so that it's harder to decryped without the decypt function
         Math.seedrandom(text.length);
         text = text.toLowerCase()
         let encrypedString = ""
+
+        let randomNumbers = []
+
+        for (let i = 0; i < text.length; i++) {
+            randomNumbers.push(Math.floor(Math.random()*10))
+            randomNumbers.push(Math.floor(Math.random()*27))
+        }
+
+        let index = 0;
+
         for (let char of text) {
-            encrypedString = `${encrypedString}${String((char.charCodeAt(0)-96)*Math.round(Math.random()*38)).padStart(3, "0")}`
+            encrypedString = `${encrypedString}${String((char.charCodeAt(0)-96+randomNumbers[index])*randomNumbers[index+1]).padStart(3, "0")}`
+            index += 2;
         }
         Math.seedrandom(Date.now())
         return encrypedString
     }
+
+    console.log(encryptText("hello"))
 
     function saveSettings() {
         
@@ -182,8 +206,6 @@ function runGame() {
 
     // Store if hint has been revield so the hint button doesn't dissapear when you get a hint
     let hasHintRevealed = false;
-
-    
 
     // Getting Navbar buttons
     const statisticsNavigationBarBTN = document.getElementById("statisticsBTN");
@@ -427,7 +449,7 @@ function runGame() {
         const allowHindTurnedOn = document.getElementById("enableHints").classList.contains("active")
 
         if (words.includes(word)) {
-            navigator.clipboard.writeText(`vertmit.github.io/dictionle?a=${encyptText(`${word}${(allowHindTurnedOn)? "a": "b"}`)}`)
+            navigator.clipboard.writeText(`vertmit.github.io/dictionle?a=${encryptText(`${word}${(allowHindTurnedOn)? "a": "b"}`)}`)
             addNotification("Copied!", notificationTimeOutMS)
         } else {
             customGameInput.classList.remove("invalid")
@@ -524,7 +546,7 @@ function runGame() {
                 }
             }
             keyDownProsses("")
-            currentGuessAmount += hintRevealingSkipToGuessCost
+            currentGuessAmount = hintRevealingSkipToGuessCost
 
         } else {
             const hintText = document.createElement("p");
@@ -552,8 +574,10 @@ function runGame() {
                             "impossible":{"played": 0, "wins":0, "streak":0, "maxStreak":0}
                         };
     if (stats) {
-        guessdistribution = stats.distribution;
-        statisticNumbers = stats.numbers;
+        if (stats.distribution["normal"]) {
+            guessdistribution = stats.distribution;
+            statisticNumbers = stats.numbers;
+        }
     }
 
     const statisticsCloseButton = document.getElementById("statsClose");
@@ -568,66 +592,62 @@ function runGame() {
     }) 
 
     function updateStatistics() {
-        try {
-            localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
+        localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
 
-            document.getElementById("statsMarker").textContent = `${selectStatsTab} mode statistics`.toUpperCase()
+        document.getElementById("statsMarker").textContent = `${selectStatsTab} mode statistics`.toUpperCase()
 
-            let guessDistributionNumbers = [];
+        let guessDistributionNumbers = [];
 
-            while (guessDistributionHolder.firstChild) {
-                guessDistributionHolder.firstChild.remove();
-            }
-
-            const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
-
-            for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1 + (selectStatsTab == "normal")? 1: 0; i++ ) {
-                if (i === guessesAllowed + 1 && selectStatsTab == "normal") i = "hinted"
-                if (i in guessdistribution[selectStatsTab]) {
-                    
-                    guessDistributionNumbers.push(guessdistribution[selectStatsTab][i]);
-                } else {
-                    guessDistributionNumbers.push(0)
-                }
-            }
-
-            
-            const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
-
-            statisticsNumberGamesPlayed.textContent = statisticNumbers[selectStatsTab].played;
-            statisticsNumberWinPercent.textContent = (statisticNumbers[selectStatsTab].played !== 0)? Math.round(statisticNumbers[selectStatsTab].wins / statisticNumbers[selectStatsTab].played * 100): 0;
-            statisticsNumberCurrentStreak.textContent = statisticNumbers[selectStatsTab].streak;
-            
-            statisticsNumberMaxStreak.textContent = statisticNumbers[selectStatsTab].maxStreak;
-
-            for (let i = 0; i < guessDistributionNumbers.length; i ++) {
-
-                const guessDistributionBox = document.createElement("div");
-                guessDistributionBox.className = "guessDistributionBox";
-
-                const indexNumberOfGuess = document.createElement("div");
-                
-                if (i == guessDistributionNumbers.length -1 && selectStatsTab == "normal") {
-                    
-                    const hintedBarIndicator = document.createElement("img")
-                    hintedBarIndicator.src = "images/lightbulb.png"
-                    indexNumberOfGuess.appendChild(hintedBarIndicator)
-                }
-                else indexNumberOfGuess.textContent = i + 1;
-                indexNumberOfGuess.className = "guessDistributionIndex";
-                guessDistributionBox.appendChild(indexNumberOfGuess)
-
-                const distributionBar = document.createElement("div");
-                distributionBar.className = "guessDistributionBar";
-                distributionBar.style.width = `calc(${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}% + 8px)`;
-                distributionBar.textContent = guessDistributionNumbers[i];
-                
-                guessDistributionBox.appendChild(distributionBar);
-                guessDistributionHolder.appendChild(guessDistributionBox);
-            }   
-        } catch {
-            console.log("An error occured while loading Satistics")
+        while (guessDistributionHolder.firstChild) {
+            guessDistributionHolder.firstChild.remove();
         }
+
+        const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
+
+        for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1 + (selectStatsTab == "normal")? 1: 0; i++ ) {
+            if (i === guessesAllowed + 1 && selectStatsTab == "normal") i = "hinted"
+            if (i in guessdistribution[selectStatsTab]) {
+                
+                guessDistributionNumbers.push(guessdistribution[selectStatsTab][i]);
+            } else {
+                guessDistributionNumbers.push(0)
+            }
+        }
+
+        
+        const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
+
+        statisticsNumberGamesPlayed.textContent = statisticNumbers[selectStatsTab].played;
+        statisticsNumberWinPercent.textContent = (statisticNumbers[selectStatsTab].played !== 0)? Math.round(statisticNumbers[selectStatsTab].wins / statisticNumbers[selectStatsTab].played * 100): 0;
+        statisticsNumberCurrentStreak.textContent = statisticNumbers[selectStatsTab].streak;
+        
+        statisticsNumberMaxStreak.textContent = statisticNumbers[selectStatsTab].maxStreak;
+
+        for (let i = 0; i < guessDistributionNumbers.length; i ++) {
+
+            const guessDistributionBox = document.createElement("div");
+            guessDistributionBox.className = "guessDistributionBox";
+
+            const indexNumberOfGuess = document.createElement("div");
+            
+            if (i == guessDistributionNumbers.length -1 && selectStatsTab == "normal") {
+                
+                const hintedBarIndicator = document.createElement("img")
+                hintedBarIndicator.src = "images/lightbulb.png"
+                indexNumberOfGuess.appendChild(hintedBarIndicator)
+            }
+            else indexNumberOfGuess.textContent = i + 1;
+            indexNumberOfGuess.className = "guessDistributionIndex";
+            guessDistributionBox.appendChild(indexNumberOfGuess)
+
+            const distributionBar = document.createElement("div");
+            distributionBar.className = "guessDistributionBar";
+            distributionBar.style.width = `calc(${guessDistributionNumbers[i] / maxiumGuessDistribution * 100}% + 8px)`;
+            distributionBar.textContent = guessDistributionNumbers[i];
+            
+            guessDistributionBox.appendChild(distributionBar);
+            guessDistributionHolder.appendChild(guessDistributionBox);
+        }   
     }
 
     updateStatistics();
@@ -987,6 +1007,8 @@ function runGame() {
             }
         }
     }
+
+    console.log(correctWord)
 
     // checks for key presses to add or subtract from the guess
     window.addEventListener("keydown", (event) => {
