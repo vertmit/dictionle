@@ -118,8 +118,6 @@ function runGame() {
         return encrypedString
     }
 
-    console.log(encryptText("hello"))
-
     function saveSettings() {
         
         localStorage.setItem("settings", JSON.stringify({
@@ -1007,9 +1005,7 @@ function runGame() {
             }
         }
     }
-
-    console.log(correctWord)
-
+    
     // checks for key presses to add or subtract from the guess
     window.addEventListener("keydown", (event) => {
         if (!onScreenKeyInputsOnly) keyDownProsses(event.key);
