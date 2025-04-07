@@ -118,6 +118,7 @@ function runGame() {
         return encrypedString
     }
 
+    // Saves all the settings
     function saveSettings() {
         
         localStorage.setItem("settings", JSON.stringify({
@@ -132,38 +133,51 @@ function runGame() {
     let showAnimations = 1;
     let onScreenKeyInputsOnly = false;
 
+    // Loads all the user's settings from their local storage
     function loadSettings() {
         const settingsToLoad = JSON.parse(localStorage.getItem("settings"))
 
+        // Sees if there are settings to load
         if (settingsToLoad) {
+            
+            // Contrast Setting
+
             if (settingsToLoad.contrast) {
                 document.body.classList.add("contrast")
                 document.getElementById("contrast").classList.add("active")
             }
+
+            // Onscreen input setting
             if (settingsToLoad.onScreenKeysOnly) {
                 onScreenKeyInputsOnly = true
                 document.getElementById("keyoption").classList.add("active")
             }
 
+            // Animation Setting
             if (!settingsToLoad.showAnimations) {
                 showAnimations = false
                 document.body.classList.add("hideAnimations")
                 document.getElementById("showAnimations").classList.remove("active")
             }
+
+            // Diffuculty setting
             selectedDifficulty = settingsToLoad.difficulty
             document.getElementById(`normalMode`).classList.remove("active")
             document.getElementById(`${selectedDifficulty}Mode`).classList.add("active")
         }
     }
 
+    // Sets the defualt difficulty to normal
     let selectedDifficulty = "normal"
 
+    // Loads the setting
     loadSettings()
 
     // pickes a random word from the list of words found in the words.js file to be used as the correct word
     let correctWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? decyptText(asearch).slice(0, -1): words[Math.floor(Math.random() * words.length)]; 
     const isCustomWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? true: false;
 
+    // Gets the diffculty this game will be played in
     const playingDifficulty = (isCustomWord)? "normal": selectedDifficulty
 
     let selectStatsTab = playingDifficulty
@@ -178,6 +192,7 @@ function runGame() {
     const guessDistributionHolder = document.getElementById("guessDistrobutionHolder");
     const statisticsMenu = document.getElementById("stats");
 
+    const statisticsCloseButton = document.getElementById("statsClose");
     const statisticsNumberGamesPlayed = document.getElementById("gamesPlayed")
     const statisticsNumberWinPercent = document.getElementById("winPercent")
     const statisticsNumberCurrentStreak = document.getElementById("currentStreak")
@@ -242,6 +257,7 @@ function runGame() {
         })
     }
 
+    // Adds the functionality to all the radio buttons
     for (const radioButton of document.getElementsByClassName("radio")) {
         radioButton.addEventListener("click", ()=>{
             const radiosInSameGroup = document.getElementsByClassName(String(radioButton.classList).replace("radio", ""))
@@ -261,21 +277,30 @@ function runGame() {
     // adds functionality to toggle buttons
     for (const toggleButton of document.getElementsByClassName("slider")) {
         toggleButton.addEventListener("click", ()=>{
+
+            // Toggles button
             if (toggleButton.classList.contains("active")) {
                 toggleButton.classList.remove("active")
             } else {
                 toggleButton.classList.add("active")
             }
+
+            // Gets if the slider is active
             const active = toggleButton.classList.contains("active")
 
+            // Sees if the slider is the contrast's one
             if (toggleButton.id === "contrast") {
                 if (active) document.body.classList.add("contrast") 
                 else document.body.classList.remove("contrast")
             }
+
+            // Sees if the slider is the onscreen input one
             else if (toggleButton.id === "keyoption") {
                 if (active) onScreenKeyInputsOnly = true
                 else onScreenKeyInputsOnly = false
             }
+
+            // Sees if the slider is the animations one
             else if (toggleButton.id === "showAnimations") {
                 if (active) {
                     document.body.classList.remove("hideAnimations")
@@ -286,11 +311,13 @@ function runGame() {
                     showAnimations = false
                 }
             }
+
+            // Saves the settings
             saveSettings()
         })
     }
 
-
+    // Created so that the impossible gueses are allows folling the hints
     let impossibleModeCharateristics = {
         "incorrect":[],
         "wrongSpot":{},
@@ -333,12 +360,14 @@ function runGame() {
         wordHolder.appendChild(wordRow);
     }
 
+    // Add functionality to the tab buttons on the stats page
     for (const tabSelect of document.getElementsByClassName("tabSelect")) {
         tabSelect.addEventListener("click", ()=>{
             selectStatsTab = tabSelect.textContent.toLowerCase()
             updateStatistics()
         })
     }
+
     // Opens the settings popup when ran
     function openSettingsPopup() {
         disableGamePlay = true;
@@ -442,6 +471,7 @@ function runGame() {
         }, 200 * showAnimations)
     }
 
+    // Adds the custom word's link to the clip board
     function copyCustomWordLink(word) {
         word = word.toLowerCase()
         const allowHindTurnedOn = document.getElementById("enableHints").classList.contains("active")
@@ -461,10 +491,12 @@ function runGame() {
         }
     }
 
+    // Copys the custom word if clicked
     customGameCopyBTN.addEventListener("click", ()=>{
         copyCustomWordLink(customGameInput.textContent)
     })
 
+    // Makes sure only letters can be added to the custom word input
     customGameInput.addEventListener("keydown", (event)=>{
         if (guessableSymbols.includes(event.key.toLowerCase())) {
             customGameInput.style.border = ""
@@ -480,34 +512,57 @@ function runGame() {
         }
     })
 
+    // Opens the settings popup when settings button is clicked
     settingsNavigationBarBTN.addEventListener("click", ()=>{
         openSettingsPopup()
     })
 
+    // Closes the settings popup when the x button is clicked
     settingsBackground.addEventListener("click", ()=> {
         closeSettingsPopup()
     })
 
+    // closes the settings popup when the background is clicked
     settingsClosePopupBTN.addEventListener("click", ()=> {
         closeSettingsPopup()
     })
 
+    // Opens the hint popup when settings button is clicked
     hintBackground.addEventListener("click", ()=>{
         closeHintPopup();
     })
 
+    // Closes the hint popup when the x button is clicked
     hintClosePopupBTN.addEventListener("click", ()=>{
         closeHintPopup();
     })
 
-
+    // closes the hint popup when the background is clicked
     hintNavigationBarBTN.addEventListener("click", ()=>{
         openHintPopup();
     })
 
+    // Opens the how to play popup when settings button is clicked
+    howToPlayNavigationBarBTN.addEventListener("click", ()=>{
+        openHowToPlayPopup();
+    })
+
+    // Closes the how to play popup when the x button is clicked
+    howToPlayBackground.addEventListener("click", ()=>{
+        closeHowToPlayPopup();
+    })
+
+    // closes the how to play popup when the background is clicked
+    howToPlayClosePopupBTN.addEventListener("click", ()=>{
+        closeHowToPlayPopup();
+    })
+
+    // Adds functionality to the hint button
     getHintBTN.addEventListener("click", ()=>{
         getHintBTN.remove();
         if (correctWordDefinitions !== -1) {
+
+            // Gets the elements in the hint popup
             hintNavigationBarBTN.style.animation = ""
             const hintBox = document.createElement("div");
             hintBox.classList.add("hintBox")
@@ -522,7 +577,7 @@ function runGame() {
             sourceText.classList.add("hintSource")
             sourceText.textContent = correctWordDefinitions.source;
 
-
+            // Makes the hint elements
             hintBox.appendChild(sourceText)
             hintBox.appendChild(hintTitle)
             hintBox.appendChild(hintText)
@@ -530,6 +585,8 @@ function runGame() {
 
             hasHintRevealed = true;
             
+            // Covers the skipped hints
+            if (!gameEnded)
             for (let i = 0; i < hintRevealingSkipToGuessCost - currentGuessAmount; i++) {
                 for (let e = 0; e < correctWordLength; e ++) {
                     const currentLetterToBeChanged = letterPlacesInsideGride[(currentGuessAmount + i) * correctWordLength + e]
@@ -543,34 +600,34 @@ function runGame() {
                     
                 }
             }
+
+            // Updates the guess
             keyDownProsses("")
+
+            // Sets the current to the cost
             currentGuessAmount = hintRevealingSkipToGuessCost
 
         } else {
+
+            // Incase the user edits the html code to get the hint
             const hintText = document.createElement("p");
             hintText.textContent = "No Definition Found";
             hintPopup.appendChild(hintText)
         }
     })
 
-    howToPlayNavigationBarBTN.addEventListener("click", ()=>{
-        openHowToPlayPopup();
-    })
-
-    howToPlayBackground.addEventListener("click", ()=>{
-        closeHowToPlayPopup();
-    })
-
-    howToPlayClosePopupBTN.addEventListener("click", ()=>{
-        closeHowToPlayPopup();
-    })
-
+   
+    // Gets the user's stats
     const stats = JSON.parse(localStorage.getItem("statistics"))
+
+    // Sets the stats to the defualt values
     let guessdistribution = {"normal":{}, "hard":{}, "impossible":{}};
     let statisticNumbers = {"normal":{"played": 0, "wins":0, "streak":0, "maxStreak":0},
                             "hard":{"played": 0, "wins":0, "streak":0, "maxStreak":0},
                             "impossible":{"played": 0, "wins":0, "streak":0, "maxStreak":0}
-                        };
+    };
+     
+    // Loads in the user's stats
     if (stats) {
         if (stats.distribution["normal"]) {
             guessdistribution = stats.distribution;
@@ -578,30 +635,35 @@ function runGame() {
         }
     }
 
-    const statisticsCloseButton = document.getElementById("statsClose");
-
+    // Opens the stats menu when the stats nav button is click
     statisticsNavigationBarBTN.addEventListener("click", ()=>{
         openStatisticsMenu();
     })
 
-    
+    // closes the stats menu when the x is clicked
     statisticsCloseButton.addEventListener("click", ()=>{
         closeStatisticsMenu();
     }) 
 
+    // Functions the updates the statisics
     function updateStatistics() {
+
+        // Updates the storage to the current stats
         localStorage.setItem("statistics", JSON.stringify({"distribution": guessdistribution, "numbers": statisticNumbers}))
 
+        // Displays when stats are being shown
         document.getElementById("statsMarker").textContent = `${selectStatsTab} mode statistics`.toUpperCase()
 
-        let guessDistributionNumbers = [];
-
+        // Removes the previously loaded bars
         while (guessDistributionHolder.firstChild) {
             guessDistributionHolder.firstChild.remove();
         }
 
+        // Gets what the highest number of guesses shown
         const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
 
+        // Gets the numbers to be displayed
+        let guessDistributionNumbers = [];
         for (let i = 1; i < Math.max(maxGuess, guessesAllowed)+1 + (selectStatsTab == "normal")? 1: 0; i++ ) {
             if (i === guessesAllowed + 1 && selectStatsTab == "normal") i = "hinted"
             if (i in guessdistribution[selectStatsTab]) {
@@ -612,15 +674,16 @@ function runGame() {
             }
         }
 
-        
+        // Gets the heighest guess
         const maxiumGuessDistribution = Math.max(...guessDistributionNumbers);
 
+        // Displays the statisic numbers
         statisticsNumberGamesPlayed.textContent = statisticNumbers[selectStatsTab].played;
         statisticsNumberWinPercent.textContent = (statisticNumbers[selectStatsTab].played !== 0)? Math.round(statisticNumbers[selectStatsTab].wins / statisticNumbers[selectStatsTab].played * 100): 0;
         statisticsNumberCurrentStreak.textContent = statisticNumbers[selectStatsTab].streak;
-        
         statisticsNumberMaxStreak.textContent = statisticNumbers[selectStatsTab].maxStreak;
 
+        // Displays the guess bars
         for (let i = 0; i < guessDistributionNumbers.length; i ++) {
 
             const guessDistributionBox = document.createElement("div");
@@ -648,6 +711,7 @@ function runGame() {
         }   
     }
 
+    // Updates the statistics
     updateStatistics();
 
     // checks if the word is valid
@@ -702,14 +766,19 @@ function runGame() {
 
                 // Sees if the word is valid
                 if (!wordStatus) {
+
+                    // Changes the word around to make it as hard as possible
                     if (playingDifficulty == "impossible") {
                         let furtherestWords = []
                         let furtherestDistance = -1
                         
+                        // Loops through all the words to find the furthest
                         for (const word of words) {
 
                             let wordVaild = true
                             let index = 0;
+
+                            // Sees if the word meats all the requirements to be valid
                             for (let letter of word) {
                                 if (impossibleModeCharateristics.incorrect.includes(letter)) {
                                     wordVaild = false
@@ -730,40 +799,55 @@ function runGame() {
                                 index++
                             }
 
+                            // Finds the distance the word is from the guess
                             if (word.length == correctWordLength && wordVaild) {
                                 let wordDistance = 0;
                                 let processingGuess = usersCurrentGuess.split('');
                                 let processingWord = word.split('');
+
+                                // Sees the amount of greens
                                 for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
                                     if (processingGuess[letterIndexOfGuess] == processingWord[letterIndexOfGuess]) {
                                         processingGuess[letterIndexOfGuess] = "="
                                         processingWord[letterIndexOfGuess] = "+"
+
+                                        // Adds a weight of 2 greens
                                         wordDistance += 2;
                                     }
                                 }
 
+                                // Sees the amount of yellows
                                 for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
                                     if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
                                         let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
                                         processingGuess[index] = "="
                                         processingWord[letterIndexOfGuess] = "+"
+
+                                        // Adds a weight of 1 for yello
                                         wordDistance += 1;
                                     }
                                 }
+
+                                // Sees if the word bets the best distance
                                 if (furtherestDistance === -1 || wordDistance < furtherestDistance) {
                                     furtherestWords = [word]
                                     furtherestDistance = wordDistance
-                                } else if (wordDistance == furtherestDistance) {
+                                } 
+                                // Sees if the word has equal distance to the furest option
+                                else if (wordDistance == furtherestDistance) {
                                     furtherestWords.push(word)
                                 }
                             }
                         }
 
+                        // Sets the correct word to one of the furthest options
                         correctWord = furtherestWords[Math.floor(Math.random()*furtherestWords.length)];
 
+                        // Splits the letters into lists so they can be edited
                         let processingGuess = usersCurrentGuess.split('');
                         let processingWord = correctWord.split('');
 
+                        // Gets the geens of the word
                         for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
                             if (processingGuess[letterIndexOfGuess] == processingWord[letterIndexOfGuess]) {
                                 impossibleModeCharateristics.correct[letterIndexOfGuess] = processingGuess[letterIndexOfGuess]
@@ -771,14 +855,21 @@ function runGame() {
                                 processingWord[letterIndexOfGuess] = "="
                             }
                         }
+
+                        // Gets the yellows and greys of the word
                         for (let letterIndexOfGuess = 0; letterIndexOfGuess < correctWordLength; letterIndexOfGuess ++) {
+
+                            // Yellows
                             if (processingWord.includes(processingGuess[letterIndexOfGuess])) {
                                 let index = processingWord.indexOf(processingGuess[letterIndexOfGuess]);
                                 if (!impossibleModeCharateristics.wrongSpot[letterIndexOfGuess]) impossibleModeCharateristics.wrongSpot[letterIndexOfGuess] = []
                                 impossibleModeCharateristics.wrongSpot[letterIndexOfGuess].push(index)
                                 processingGuess[letterIndexOfGuess] = "+"
                                 processingWord[index] = "="
-                            } else {
+                            } 
+
+                            // Greys
+                            else {
                                 if (!Object.keys(impossibleModeCharateristics.wrongSpot).includes(processingGuess[letterIndexOfGuess])) {
                                     impossibleModeCharateristics.incorrect.push(processingGuess[letterIndexOfGuess])
                                 }
@@ -1010,6 +1101,8 @@ function runGame() {
     window.addEventListener("keydown", (event) => {
         if (!onScreenKeyInputsOnly) keyDownProsses(event.key);
     });
+
+    console.log(correctWord)
 }
 
 runGame()
