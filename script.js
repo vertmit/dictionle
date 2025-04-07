@@ -1101,8 +1101,6 @@ function runGame() {
     window.addEventListener("keydown", (event) => {
         if (!onScreenKeyInputsOnly) keyDownProsses(event.key);
     });
-
-    console.log(correctWord)
 }
 
 runGame()
