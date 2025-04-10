@@ -978,7 +978,7 @@ function runGame() {
 
                     if (correctWord === usersCurrentGuess) {
                         gameEnded = true;
-                        if (!asearch) {
+                        if (!isCustomWord) {
                             const guessIndexInStatistics = (!hasHintRevealed)? currentGuessAmount+1: "hinted";
                             if (!(guessIndexInStatistics in guessdistribution[playingDifficulty])) guessdistribution[playingDifficulty][guessIndexInStatistics] = 0;
                             guessdistribution[playingDifficulty][guessIndexInStatistics] ++;
