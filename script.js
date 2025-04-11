@@ -85,7 +85,6 @@ function runGame() {
 
         let decrypedString = ""
         for (let char = 0; char < text.length; char += 3) {
-            // decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/randomNumbers[index]+96-randomNumbers[index+1])}`
             decrypedString = `${decrypedString}${String.fromCharCode(Number(`${text[char]}${text[char+1]}${text[char+2]}`)/randomNumbers[index+1]-randomNumbers[index]+96)}`
             index += 2;
         }
@@ -116,6 +115,31 @@ function runGame() {
         }
         Math.seedrandom(Date.now())
         return encrypedString
+    }
+
+    const notificationHolder = document.getElementById("notificationHolder");
+
+    // Sets a time in MS for how long the notification will be displayed for
+    const notificationTimeOutMS = 1000;
+
+    // displays a notification with the message argument attached
+    function addNotification(message, timeOutMS) {
+        const notification = document.createElement("div");
+        notification.classList.add("notification");
+        notification.textContent = message;
+        notificationHolder.appendChild(notification);
+
+        if (timeOutMS < 0) return;
+
+        // waits until notificationTimeOut time has passed so the notification can be removed
+        setTimeout(() => {
+
+            // fades out the notification before deletion
+            notification.style.opacity = 0;
+            setTimeout(() => {
+                notification.remove();
+            }, 250);
+        }, timeOutMS);
     }
 
     // Saves all the settings
@@ -174,15 +198,36 @@ function runGame() {
     loadSettings()
 
     // pickes a random word from the list of words found in the words.js file to be used as the correct word
-    let correctWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? decyptText(asearch).slice(0, -1): words[Math.floor(Math.random() * words.length)]; 
-    const isCustomWord = (asearch && words.includes(decyptText(asearch).slice(0, -1)))? true: false;
+    let correctWord = words[Math.floor(Math.random() * words.length)]
+
+    let isCustomWord = false
+
+    let areHintsAllowed = true
+
+    // Initializes custom game
+    if (asearch) {
+        const decrypedCustom = decyptText(asearch)
+        if (decrypedCustom && words.includes(decrypedCustom.slice(0, -1))) {
+            isCustomWord = true
+
+            addNotification("Custom game is in play, not statistics will be changed", notificationTimeOutMS * 1.5)
+
+            correctWord = decrypedCustom.slice(0, -1)
+
+            areHintsAllowed = 0;
+            if (decrypedCustom.charAt(-1) == "a") {
+                areHintsAllowed = 1;
+            }
+
+        }
+        else addNotification("Failed to load custom game", notificationTimeOutMS * 1.3)
+    }
 
     // Gets the diffculty this game will be played in
     const playingDifficulty = (isCustomWord)? "normal": selectedDifficulty
 
     let selectStatsTab = playingDifficulty
 
-    const notificationHolder = document.getElementById("notificationHolder");
     const wordHolder = document.getElementById("wordHolder");
 
     // gets all the letter spots so they can be updated
@@ -234,14 +279,6 @@ function runGame() {
 
     // Disables the game, use cases like opening menu so background presses
     let disableGamePlay = false;
-
-    let areHintsAllowed = 1;
-    if (asearch && words.includes(decyptText(asearch).slice(0, -1))) {
-        areHintsAllowed = 0;
-        if (decyptText(asearch).charAt(decyptText(asearch).length - 1) == "a"){
-            areHintsAllowed = 1
-        }
-    }
 
     // Get the definition of the selected word
     let correctWordDefinitions = -1;
@@ -323,9 +360,6 @@ function runGame() {
         "wrongSpot":{},
         "correct":{}
     }
-
-    // Sets a time in MS for how long the notification will be displayed for
-    const notificationTimeOutMS = 1000;
 
     // Sets a time in MS between each letter whist getting checked
     const wordCheckAnimationIntervalMS = 250;
@@ -659,8 +693,15 @@ function runGame() {
             guessDistributionHolder.firstChild.remove();
         }
 
-        // Gets what the highest number of guesses shown
-        const maxGuess = (Object.keys(guessdistribution[selectStatsTab]).length > 0)? (Object.keys(guessdistribution[selectStatsTab]).slice(-1) == "hinted")? Object.keys(guessdistribution[selectStatsTab]).slice(-2)[0]: Object.keys(guessdistribution[selectStatsTab]).slice(-1): 0;
+        // Gets the max guess
+        let maxGuess = Object.keys(guessdistribution[selectStatsTab]).slice(-1)
+
+        if (maxGuess == "hinted") {
+            maxGuess = 0
+            if (Object.keys(guessdistribution[selectStatsTab]) - 1 > 0) {
+                maxGuess = Object.keys(guessdistribution[selectStatsTab]).charAt(-1)
+            }
+        }
 
         // Gets the numbers to be displayed
         let guessDistributionNumbers = [];
@@ -726,26 +767,6 @@ function runGame() {
             return 0;
         }
         return 2;
-    }
-
-    // displays a notification with the message argument attached
-    function addNotification(message, timeOutMS) {
-        const notification = document.createElement("div");
-        notification.classList.add("notification");
-        notification.textContent = message;
-        notificationHolder.appendChild(notification);
-
-        if (timeOutMS < 0) return;
-
-        // waits until notificationTimeOut time has passed so the notification can be removed
-        setTimeout(() => {
-
-            // fades out the notification before deletion
-            notification.style.opacity = 0;
-            setTimeout(() => {
-                notification.remove();
-            }, 250);
-        }, timeOutMS);
     }
 
     // Events that happen when a button is pressed
@@ -1096,7 +1117,7 @@ function runGame() {
             }
         }
     }
-    
+
     // checks for key presses to add or subtract from the guess
     window.addEventListener("keydown", (event) => {
         if (!onScreenKeyInputsOnly) keyDownProsses(event.key);
