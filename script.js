@@ -210,7 +210,7 @@ function runGame() {
         if (decrypedCustom && words.includes(decrypedCustom.slice(0, -1))) {
             isCustomWord = true
 
-            addNotification("Custom game is in play, not statistics will be changed", notificationTimeOutMS * 1.5)
+            addNotification("Custom game is in play, no statistics will be changed", notificationTimeOutMS * 1.5)
 
             correctWord = decrypedCustom.slice(0, -1)
 
