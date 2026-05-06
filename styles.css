@@ -381,9 +381,13 @@ stats tab
 
 .tabSelect {
     margin-top: 10px;
-    border: 1px solid rgb(143, 143, 143);
+    border: 1px solid #575757;
+    font-size: 1em;
+    padding: 10px;
     cursor: pointer;
     user-select: none;
+    border-top-right-radius: 2px;
+    border-top-left-radius: 2px;
 }
 
 #statsMarker {
@@ -391,9 +395,17 @@ stats tab
     margin-top: 10px;
 }
 
+#statbox {
+    border:#575757 solid 1px;
+    padding: 20px;
+    border-radius: 20px;
+    border-top-left-radius: 0px;
+}
+
 .tabSelect.active {
-    background-color: #363636;
+    background-color: #575757;
     border: 1px solid rgb(201, 201, 201);
+    border-top: 20px;
 }
 
 .menuTitle {
@@ -479,8 +491,9 @@ h3 {
 
 .row {
     flex-wrap: wrap;
+    justify-content: center;
     display: flex;
-    gap: 5px;
+    gap: 0px;
 }
 
 .statNum {
@@ -524,8 +537,6 @@ Navbar
     flex-direction: row-reverse;
     padding-inline: 25px;
 }
-
-
 
 h1 {
     margin: 0px;
@@ -761,12 +772,6 @@ Guess Grid
 
 /* Colours for the guess in the guess grid */
 
-.correct {
-    color: var(--correct-letter-colour);
-    background-color: var(--correct-colour);
-    border-color: var(--correct-colour);
-}
-
 .incorrect {
     color: var(--incorrect-letter-colour);
     background-color: var(--incorrect-colour);
@@ -777,6 +782,12 @@ Guess Grid
     color: var(--worng-spot-letter-colour);
     background-color: var(--worng-spot-colour);
     border-color: var(--worng-spot-colour);
+}
+
+.correct {
+    color: var(--correct-letter-colour);
+    background-color: var(--correct-colour);
+    border-color: var(--correct-colour);
 }
 
 .hinted {

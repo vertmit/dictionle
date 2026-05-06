@@ -979,13 +979,14 @@ function runGame() {
                             // changes the key to green if the letter is maked as correct
                             if (processingGuess[letter] === "correct") {
                                 key.classList.add("correct");
+                                key.classList.remove("wrong");
                             }
 
                             // changes the key to orange if the letter is maked as in the wrong spot
-                            else if (processingGuess[letter] === "wrong spot") {
+                            else if (processingGuess[letter] === "wrong spot" && !key.classList.contains("correct")) {
 
                                 // sees if the key is already green so it doesn't change it
-                                if (!key.classList.contains("correct")) key.classList.add("wrong");
+                                key.classList.add("wrong");
                             } 
 
                             // changes the key to grey if the letter is maked as in the incorrect

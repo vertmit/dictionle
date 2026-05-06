@@ -34,33 +34,36 @@
                 <img id="statsClose" class="close" src="images/close.png">
             </div>
 
-            <div class="row">
+            <div class="row" style="justify-content: left;">
                 <div class="tabSelect">Normal</div>
                 
                 <div class="tabSelect">Impossible</div>
             </div>
 
-            <h2 id="statsMarker"></h2>
-            <div class="row">
-                <div class="stat">
-                    <h1 class="statNum" id="gamesPlayed">0</h1>
-                    <h3 class="statType">Played</h3>
+            <div id="statbox">
+                <h2 id="statsMarker"></h2>
+                <div class="row">
+                    <div class="stat">
+                        <h1 class="statNum" id="gamesPlayed">0</h1>
+                        <h3 class="statType">Played</h3>
+                    </div>
+                    <div class="stat">
+                        <h1 class="statNum" id="winPercent">0</h1>
+                        <h3 class="statType">Win %</h3>
+                    </div>
+                    <div class="stat">
+                        <h1 class="statNum" id="currentStreak">0</h1>
+                        <h3 class="statType">Current Streak</h3>
+                    </div>
+                    <div class="stat">
+                        <h1 class="statNum" id="maxStreak">0</h1>
+                        <h3 class="statType">Max Streak</h3>
+                    </div>
                 </div>
-                <div class="stat">
-                    <h1 class="statNum" id="winPercent">0</h1>
-                    <h3 class="statType">Win %</h3>
-                </div>
-                <div class="stat">
-                    <h1 class="statNum" id="currentStreak">0</h1>
-                    <h3 class="statType">Current Streak</h3>
-                </div>
-                <div class="stat">
-                    <h1 class="statNum" id="maxStreak">0</h1>
-                    <h3 class="statType">Max Streak</h3>
-                </div>
+
+                <h3>GUESS DISTRIBUTION</h3>
+                <div id="guessDistrobutionHolder"></div>
             </div>
-            <h3>GUESS DISTRIBUTION</h3>
-            <div id="guessDistrobutionHolder"></div>
         </div>
     </div>
     <div class="popupBg" id="howToPlayCloseBg" style="display: none;"></div>
